@@ -1,6 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SuggestionsList from './SuggestionsList';
-import { IconSearch } from '@tabler/icons-react';
+// import { IconSearch } from '@tabler/icons-react';
+import { IconSearch, IconChevronDown, IconBrain } from '@tabler/icons-react';
+
+const MODELS = [
+    { id: 'gpt-4o-mini', name: 'GPT-4 Mini' },
+    { id: 'gpt-4', name: 'GPT-4' },
+    { id: 'mixtral-8x7b', name: 'Mixtral 8x7B' },
+    { id: 'claude-3-haiku', name: 'Claude 3 Haiku' },
+    { id: 'llama-3.1-70b', name: 'Llama 3 70B' }
+];
+
 async function fetchAutocompleteSuggestions(query) {
     try {
         if (!query.trim()) return [];
@@ -25,13 +35,13 @@ function highlightMatch(text, query) {
     );
 }
 
-function SearchBar({ onSearch, hasSearched }) {
+function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
     const [input, setInput] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [showModelSelect, setShowModelSelect] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
-    const suggestionsRef = useRef(null);
     const inputRef = useRef(null);
 
     useEffect(() => {
@@ -61,18 +71,56 @@ function SearchBar({ onSearch, hasSearched }) {
         setSelectedIndex(-1);
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+        
+        onSearch(input);
+        setSuggestions([]);
+        setShowSuggestions(false);
+        setSelectedIndex(-1);
+        
+        inputRef.current?.focus();
+      };
+
     return (
         <div className={`max-w-2xl mx-auto transition-all duration-500 ${hasSearched ? 'scale-95' : 'scale-100'}`}>
-            <form
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    onSearch(input);
-                    setShowSuggestions(false);
-                }}
-                className="relative"
-            >
+            <div className="flex items-center gap-2 mb-2">
                 <div className="relative">
-                    <label htmlFor="search-input" className="sr-only">Search anything...</label>
+                    <button
+                        type="button"
+                        onClick={() => setShowModelSelect(!showModelSelect)}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                    >
+                        <IconBrain size={16} className="text-blue-600 dark:text-blue-400" />
+                        <span className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                            {MODELS.find(m => m.id === selectedModel)?.name}
+                        </span>
+                        <IconChevronDown size={16} className="text-blue-600 dark:text-blue-400" />
+                    </button>
+
+                    {showModelSelect && (
+                        <div className="absolute top-full left-0 mt-1 w-48 py-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 z-50">
+                            {MODELS.map(model => (
+                                <button
+                                    key={model.id}
+                                    onClick={() => {
+                                        onModelChange(model.id);
+                                        setShowModelSelect(false);
+                                    }}
+                                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 ${selectedModel === model.id ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-400' : ''
+                                        }`}
+                                >
+                                    {model.name}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+                <div className="relative">
                     <input
                         id="search-input"
                         ref={inputRef}
