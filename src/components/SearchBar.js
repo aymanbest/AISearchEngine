@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import SuggestionsList from './SuggestionsList';
-import { IconSearch, IconChevronDown, IconBrain } from '@tabler/icons-react';
+import { IconSearch, IconBrain } from '@tabler/icons-react';
 import '../index.css';
 
 const MODELS = [
