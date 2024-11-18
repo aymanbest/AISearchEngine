@@ -31,7 +31,7 @@ A modern search engine application built with React that combines web search res
 
 1. Clone the repository:
 ```sh
-git clone <your-repo-url>
+git clone https://github.com/aymanbest/AISearchEngine.git
 cd searchengine
 ```
 
