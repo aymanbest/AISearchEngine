@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SuggestionsList from './SuggestionsList';
-// import { IconSearch } from '@tabler/icons-react';
 import { IconSearch, IconChevronDown, IconBrain } from '@tabler/icons-react';
-//importing index css 
 import '../index.css';
-
 
 const MODELS = [
     { id: 'gpt-4o-mini', name: 'GPT-4 Mini' },
@@ -22,7 +19,7 @@ async function fetchAutocompleteSuggestions(query) {
         );
         const suggestions = await response.json();
         return suggestions.map(item => ({
-            phrase: item.phrase || item, // Fallback if phrase property doesn't exist
+            phrase: item.phrase || item,
             highlighted: highlightMatch(item.phrase || item, query)
         }));
     } catch (error) {
@@ -51,7 +48,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
         const value = e.target.value;
         setInput(value);
         setShowSuggestions(true);
-        
+
         if (value.trim()) {
             const newSuggestions = await fetchAutocompleteSuggestions(value);
             setSuggestions(newSuggestions);
@@ -62,10 +59,11 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
 
     // Handle suggestion click
     const handleSuggestionClick = (suggestion) => {
-        setInput(suggestion);
+        const suggestionText = suggestion.phrase || suggestion;
+        setInput(suggestionText);
         setShowSuggestions(false);
         setSuggestions([]);
-        onSearch(suggestion);
+        onSearch(suggestionText);
     };
 
     // Handle keyboard navigation
@@ -78,7 +76,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
             }
         } else if (e.key === 'ArrowDown') {
             e.preventDefault();
-            setSelectedIndex(prev => 
+            setSelectedIndex(prev =>
                 prev < suggestions.length - 1 ? prev + 1 : prev);
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
@@ -92,7 +90,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!input.trim()) return;
-        
+
         setLoading(true);
         onSearch(input);
         setSuggestions([]);
@@ -101,17 +99,6 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
         setLoading(false);
     };
 
-    // Close suggestions when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (inputRef.current && !inputRef.current.contains(event.target)) {
-                setShowSuggestions(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
 
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
@@ -125,24 +112,24 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
                             className={`
                                 flex items-center gap-2 px-4 py-2 rounded-lg
                                 transition-all duration-300 ease-out
-                                ${selectedModel === model.id 
-                                    ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]' 
+                                ${selectedModel === model.id
+                                    ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]'
                                     : 'bg-gray-800/50 hover:bg-gray-800/80'
                                 }
                             `}
                         >
-                            <IconBrain 
-                                size={18} 
+                            <IconBrain
+                                size={18}
                                 className={`transition-all duration-300
-                                    ${selectedModel === model.id 
-                                        ? 'text-white' 
+                                    ${selectedModel === model.id
+                                        ? 'text-white'
                                         : 'text-blue-400'
                                     }
                                 `}
                             />
                             <span className={`text-sm font-medium
-                                ${selectedModel === model.id 
-                                    ? 'text-white' 
+                                ${selectedModel === model.id
+                                    ? 'text-white'
                                     : 'text-gray-300'
                                 }`}>
                                 {model.name}
@@ -175,7 +162,6 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
                             relative z-10"
                         placeholder="Ask me anything..."
                     />
-
                     <button
                         type="submit"
                         className="absolute right-2 top-1/2 -translate-y-1/2
@@ -195,27 +181,12 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
 
                 {/* Suggestions */}
                 {showSuggestions && suggestions.length > 0 && (
-                    <div className="absolute w-full mt-2 py-1 rounded-xl
-                        bg-gray-800/95 border border-gray-700/50
-                        shadow-lg z-50">
-                        {suggestions.map((suggestion, index) => (
-                            <button
-                                key={index}
-                                type="button"
-                                onMouseEnter={() => setSelectedIndex(index)}
-                                onClick={() => handleSuggestionClick(suggestion.phrase)}
-                                className={`w-full px-4 py-2 text-left flex items-center gap-3
-                                    transition-colors duration-200
-                                    ${selectedIndex === index 
-                                        ? 'bg-gray-700/50 text-blue-400' 
-                                        : 'text-gray-300 hover:bg-gray-700/30'
-                                    }`}
-                            >
-                                <IconSearch size={16} className="text-gray-500" />
-                                <span>{suggestion.highlighted}</span>
-                            </button>
-                        ))}
-                    </div>
+                    <SuggestionsList
+                        suggestions={suggestions}
+                        selectedIndex={selectedIndex}
+                        onSuggestionSelect={handleSuggestionClick}
+                        onSuggestionHover={setSelectedIndex}
+                    />
                 )}
             </form>
         </div>
