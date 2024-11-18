@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { IconPhoto, IconLoader2, IconPencil, IconDownload, IconPalette } from '@tabler/icons-react';
 
+
+const secureImageUrl = (url) => {
+  if (!url) return '';
+  return url.replace(/^http:/, 'https:');
+};
+
 const DrawingLoader = () => (
   <div className="mt-4 h-64 bg-gray-800/50 rounded-xl border border-gray-700/50 
       backdrop-blur-sm shadow-lg overflow-hidden relative group">
@@ -80,22 +86,36 @@ function ImageGenerator() {
     }
   };
 
-  const handleDownload = async (imageUrl, prompt) => {
+  const downloadImage = async (imageUrl, imageName) => {
     try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${prompt.slice(0, 30).replace(/[^a-z0-9]/gi, '_')}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+        const secureUrl = secureImageUrl(imageUrl);
+        const response = await fetch(secureUrl);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = imageName || 'generated-image.png';
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download failed:', error);
+        console.error('Download failed:', error);
+        // Optional: Add user notification here
+        alert('Failed to download image. Please try again.');
     }
-  };
+};
+
+  const handleDownload = (imageUrl) => {
+    const timestamp = Date.now();
+    const imageName = `generated-image-${timestamp}.png`;
+    downloadImage(imageUrl, imageName);
+};
 
   return (
     <div className="max-w-2xl mx-auto mt-8 space-y-6">
