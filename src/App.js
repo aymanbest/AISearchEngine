@@ -139,7 +139,8 @@ function App() {
   return (
     <div className={darkMode ? 'dark' : ''}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        <header className="p-4 flex justify-between items-center">
+        <header className={`p-4 flex justify-between items-center sticky top-0 bg-gray-50 dark:bg-gray-900 z-50 
+        ${hasSearched ? '' : ''}`}>
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -149,7 +150,8 @@ function App() {
             </button>
 
             {showMenu && (
-              <div className="absolute top-full left-0 mt-2 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 border dark:border-gray-700 overflow-hidden">
+              <div className="absolute left-0 mt-2 w-48 rounded-lg shadow-lg 
+                    bg-white dark:bg-gray-800 border dark:border-gray-700 overflow-hidden">
                 <button
                   onClick={() => {
                     setActiveTab('search');
@@ -184,27 +186,36 @@ function App() {
           </button>
         </header>
 
-        <main className={`container mx-auto px-4 transition-all duration-500 ease-in-out ${activeTab === 'search' && !hasSearched ? 'mt-[30vh]' : 'mt-4'
-          }`}>
+        <main className={`container mx-auto px-4 transition-all duration-500 ease-in-out 
+    ${activeTab === 'search' && !hasSearched ? 'mt-[30vh]' : 'mt-4'}`}>
           {activeTab === 'search' ? (
-            <>
-              <SearchBar
-                onSearch={handleSearch}
-                hasSearched={hasSearched}
-                selectedModel={selectedModel}
-                onModelChange={setSelectedModel}
-              />
-              <div className={`transition-opacity duration-500 ${hasSearched ? 'opacity-100' : 'opacity-0'}`}>
-                <AISearch
-                  query={query}
+            <div className="flex flex-col gap-6">
+              {/* Sticky Search Section */}
+              <div className="sticky top-0 z-50 bg-gray-50 dark:bg-gray-900 pt-4 pb-6">
+                <SearchBar
+                  onSearch={handleSearch}
+                  hasSearched={hasSearched}
                   selectedModel={selectedModel}
                   onModelChange={setSelectedModel}
                 />
-                <div className="mt-6 relative">
+                {hasSearched && (
+                  <div className="mt-6">
+                    <AISearch
+                      query={query}
+                      selectedModel={selectedModel}
+                      onModelChange={setSelectedModel}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Scrollable Results */}
+              {hasSearched && (
+                <div className="relative">
                   <SearchResults results={results} />
                 </div>
-              </div>
-            </>
+              )}
+            </div>
           ) : (
             <ImageGenerator />
           )}
