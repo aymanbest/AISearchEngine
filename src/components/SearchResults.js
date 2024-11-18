@@ -33,9 +33,9 @@ function SearchResults({ results }) {
                     <div className="p-5">
                         <div className="flex items-start justify-between gap-4 mb-2">
                             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                {result.title}
+                                {cleanText(result.title)}
                             </h3>
-                            <a href={result.url} 
+                            <a href={result.link} 
                                target="_blank" 
                                rel="noopener noreferrer"
                                className="text-gray-400 hover:text-blue-500 
