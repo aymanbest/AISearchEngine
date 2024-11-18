@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconBrandWikipedia, IconLink } from '@tabler/icons-react';
+import { IconExternalLink } from '@tabler/icons-react';
 
 function SearchResults({ results }) {
     const newres = results.filter(result => !result.link.includes('ad_domain='));
@@ -16,82 +16,55 @@ function SearchResults({ results }) {
     };
     
     return (
-        <div className="max-w-7xl mx-auto px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Web Results column - left side */}
-                <div className="md:col-span-1">
-                    <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-6 pt-4">
-                        Web Results
-                    </h3>
-                    <div className="space-y-4">
-                        {otherResults.map((result, index) => (
-                            <a
-                                href={result.link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                key={index}
-                                className="block p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-all"
-                            >
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <IconLink size={16} className="text-gray-400" />
-                                        <span className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                                            {new URL(result.link).hostname}
-                                        </span>
-                                    </div>
-                                    <h4 className="text-lg font-medium text-blue-600 dark:text-blue-400 mb-2 hover:underline">
-                                        {cleanText(result.title)}
-                                    </h4>
-                                    <p className="text-gray-600 dark:text-gray-300 line-clamp-3">
-                                        {cleanText(result.description)}
-                                    </p>
-                                </a>
-                            ))}
+        <div className="max-w-2xl mx-auto mt-6 space-y-4">
+            {results.map((result, index) => (
+                <div 
+                    key={index}
+                    className="bg-white dark:bg-gray-800 rounded-xl
+                        border border-gray-200 dark:border-gray-700
+                        hover:border-blue-200 dark:hover:border-blue-800
+                        shadow-sm hover:shadow-md
+                        transition-all duration-300"
+                    style={{ 
+                        animationDelay: `${index * 100}ms`,
+                        animation: 'slideUp 0.3s ease-out forwards'
+                    }}
+                >
+                    <div className="p-5">
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                {result.title}
+                            </h3>
+                            <a href={result.url} 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               className="text-gray-400 hover:text-blue-500 
+                                  p-1 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/50
+                                  transition-colors duration-200">
+                                <IconExternalLink size={18} />
+                            </a>
                         </div>
-                    </div>
-                
-
-                {/* Wikipedia column with sticky positioning */}
-                <div className="relative md:col-span-1">
-                    <div className="md:sticky md:top-[200px]">
-                        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-6 pt-4">
-                            Wikipedia
-                        </h3>
-                        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
-                            {wikipediaResult ? (
-                                <div className="p-6">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <IconBrandWikipedia size={24} className="text-gray-600 dark:text-gray-300" />
-                                    <h4 className="text-lg font-medium">{cleanText(wikipediaResult.title)}</h4>
-                                </div>
-                                {wikipediaResult.image && (
-                                    <img
-                                        src={wikipediaResult.image}
-                                        alt={cleanText(wikipediaResult.title)}
-                                        className="w-full h-full object-cover mb-4"
-                                    />
-                                )}
-                                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                                    {cleanText(wikipediaResult.description)}
-                                </p>
-                                <a
-                                    href={wikipediaResult.link}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
-                                >
-                                    Read more on Wikipedia
-                                    <IconLink size={16} />
-                                </a>
-                            </div>
-                        ) : (
-                            <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-sm text-gray-500 dark:text-gray-400">
-                                No Wikipedia results found
+                        
+                        <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                            {result.description}
+                        </p>
+                        
+                        {result.metadata && (
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {Object.entries(result.metadata).map(([key, value], i) => (
+                                    <span key={i} 
+                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full
+                                            text-xs font-medium
+                                            bg-blue-50 dark:bg-blue-900/30
+                                            text-blue-700 dark:text-blue-300">
+                                        {key}: {value}
+                                    </span>
+                                ))}
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
-        </div>
+            ))}
         </div>
     );
 }
