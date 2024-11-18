@@ -68,33 +68,68 @@ async function startAISearch(query, setResultText, model) {
 
 function AISearch({ query, selectedModel, onModelChange }) {
     const [resultText, setResultText] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingProgress, setLoadingProgress] = useState(0);
   
     useEffect(() => {
       if (query) {
-        startAISearch(query, setResultText, selectedModel);
+        setIsLoading(true);
+        setLoadingProgress(0);
+        
+        // Simulate progress for better UX
+        const progressInterval = setInterval(() => {
+          setLoadingProgress(prev => {
+            if (prev >= 90) return prev;
+            return prev + Math.random() * 15;
+          });
+        }, 600);
+
+        startAISearch(query, (text) => {
+          setResultText(text);
+          setLoadingProgress(100);
+          setIsLoading(false);
+        }, selectedModel);
+
+        return () => clearInterval(progressInterval);
       }
     }, [query, selectedModel]);
   
     return (
-      <div className="mt-4 p-4 border rounded dark:border-gray-700">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl mb-2">Search Results</h2>
-          <div className="flex items-center gap-2">
-            <IconBrain size={20} className="text-blue-500" />
-            <select
-              value={selectedModel}
-              onChange={(e) => onModelChange(e.target.value)}
-              className="p-2 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
-            >
-              {MODELS.map(({ id, name }) => (
-                <option key={id} value={id}>{name}</option>
-              ))}
-            </select>
-          </div>
+        <div className="mt-6 relative">
+            <div className="rounded-xl overflow-hidden
+                bg-white dark:bg-gray-800
+                border border-gray-200 dark:border-gray-700
+                shadow-sm">
+                
+                {/* Loading Progress Bar */}
+                {isLoading && (
+                    <div className="absolute inset-x-0 top-0 h-0.5 bg-gray-100 dark:bg-gray-700">
+                        <div 
+                            className="h-full bg-blue-500 transition-all duration-300"
+                            style={{ width: `${loadingProgress}%` }}
+                        />
+                    </div>
+                )}
+
+                {/* Content */}
+                <div className="p-6">
+                    {isLoading && (
+                        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                            <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 
+                                rounded-full animate-spin" />
+                            Processing your query...
+                        </div>
+                    )}
+
+                    <div className={`prose dark:prose-invert max-w-none
+                        ${isLoading ? 'opacity-60' : 'opacity-100'}
+                        transition-opacity duration-300`}>
+                        {resultText}
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>{resultText}</div>
-      </div>
     );
-  }
+}
 
 export default AISearch;
