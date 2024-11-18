@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IconBrain } from '@tabler/icons-react';
+
 const MODELS = [
     { id: 'gpt-4o-mini', name: 'GPT-4 Mini' },
     { id: 'gpt-4', name: 'GPT-4' },
@@ -76,25 +77,31 @@ function AISearch({ query, selectedModel, onModelChange }) {
     }, [query, selectedModel]);
   
     return (
-      <div className="mt-4 p-4 border rounded dark:border-gray-700">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl mb-2">Search Results</h2>
-          <div className="flex items-center gap-2">
-            <IconBrain size={20} className="text-blue-500" />
-            <select
-              value={selectedModel}
-              onChange={(e) => onModelChange(e.target.value)}
-              className="p-2 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
-            >
-              {MODELS.map(({ id, name }) => (
-                <option key={id} value={id}>{name}</option>
-              ))}
-            </select>
+      <div className="sticky top-0 z-30 bg-gray-50 dark:bg-gray-900 pt-4 pb-4"> {/* Added sticky positioning */}
+        <div className="max-w-7xl mx-auto">
+          <div className="p-8 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-medium text-gray-700 dark:text-gray-300">AI Answer</h2>
+              <div className="flex items-center gap-2">
+                <IconBrain size={20} className="text-blue-500" />
+                <select
+                  value={selectedModel}
+                  onChange={(e) => onModelChange(e.target.value)}
+                  className="p-2 rounded-lg border dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
+                >
+                  {MODELS.map(({ id, name }) => (
+                    <option key={id} value={id}>{name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="prose dark:prose-invert max-w-none text-lg">
+              {resultText}
+            </div>
           </div>
         </div>
-        <div>{resultText}</div>
       </div>
     );
-  }
+}
 
 export default AISearch;
