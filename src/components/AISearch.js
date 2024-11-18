@@ -77,7 +77,6 @@ function AISearch({ query, selectedModel, onModelChange }) {
         setIsLoading(true);
         setLoadingProgress(0);
         
-        // Simulate progress for better UX
         const progressInterval = setInterval(() => {
           setLoadingProgress(prev => {
             if (prev >= 90) return prev;
@@ -102,7 +101,6 @@ function AISearch({ query, selectedModel, onModelChange }) {
                 border border-gray-200 dark:border-gray-700
                 shadow-sm">
                 
-                {/* Loading Progress Bar */}
                 {isLoading && (
                     <div className="absolute inset-x-0 top-0 h-0.5 bg-gray-100 dark:bg-gray-700">
                         <div 
@@ -112,7 +110,6 @@ function AISearch({ query, selectedModel, onModelChange }) {
                     </div>
                 )}
 
-                {/* Content */}
                 <div className="p-6">
                     {isLoading && (
                         <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">

@@ -16,8 +16,8 @@ const DrawingLoader = () => (
           animate-gradient-x" />
       <div className="grid grid-cols-8 grid-rows-4 gap-4 p-4 h-full w-full">
         {[...Array(32)].map((_, i) => (
-          <div key={i} 
-            className="bg-white/10 rounded-full animate-pulse" 
+          <div key={i}
+            className="bg-white/10 rounded-full animate-pulse"
             style={{ animationDelay: `${i * 100}ms` }}
           />
         ))}
@@ -88,35 +88,43 @@ function ImageGenerator() {
 
   const downloadImage = async (imageUrl, imageName) => {
     try {
-        const secureUrl = secureImageUrl(imageUrl);
-        const response = await fetch(secureUrl);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = imageName || 'generated-image.png';
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
+      const secureUrl = secureImageUrl(imageUrl);
+      const response = await fetch(secureUrl);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = imageName || 'generated-image.png';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
-        console.error('Download failed:', error);
-        // Optional: Add user notification here
-        alert('Failed to download image. Please try again.');
+      console.error('Download failed:', error);
+      // Optional: Add user notification here
+      alert('Failed to download image. Please try again.');
     }
-};
+  };
 
-  const handleDownload = (imageUrl) => {
+  const toKebabCase = (str) => {
+    return str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with hyphens
+      .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
+  };
+
+  const handleDownload = (imageUrl, prompt) => {
+    const kebabPrompt = toKebabCase(prompt);
     const timestamp = Date.now();
-    const imageName = `generated-image-${timestamp}.png`;
+    const imageName = `${kebabPrompt}-${timestamp}.png`;
     downloadImage(imageUrl, imageName);
-};
-
+  };
+  
   return (
     <div className="max-w-2xl mx-auto mt-8 space-y-6">
       <form onSubmit={generateImage} className="space-y-4">
@@ -129,14 +137,14 @@ function ImageGenerator() {
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-lg
                 transition-all duration-300 ease-out whitespace-nowrap
-                ${model === id 
-                  ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]' 
+                ${model === id
+                  ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]'
                   : 'bg-gray-800/50 hover:bg-gray-800/80'
                 }
               `}
             >
-              <IconPhoto 
-                size={18} 
+              <IconPhoto
+                size={18}
                 className={`transition-all duration-300
                   ${model === id ? 'text-white' : 'text-blue-400'}`}
               />
@@ -152,7 +160,7 @@ function ImageGenerator() {
           <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 
               rounded-xl opacity-0 group-focus-within:opacity-100 blur-lg
               transition-all duration-500" />
-          
+
           <div className="relative">
             <input
               type="text"
@@ -206,10 +214,10 @@ function ImageGenerator() {
             {/* Image overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent 
                 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            
+
             {/* Main image */}
-            <img 
-              src={imageUrl} 
+            <img
+              src={imageUrl}
               alt={prompt}
               className="w-full h-auto transition-transform duration-500
                 group-hover:scale-105"

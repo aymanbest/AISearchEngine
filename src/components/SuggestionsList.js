@@ -10,7 +10,6 @@ const SuggestionsList = ({ suggestions, selectedIndex, onSuggestionSelect, onSug
           type="button"
           onClick={(e) => {
             e.preventDefault();
-            console.log('Clicked suggestion:', suggestion.phrase);
             onSuggestionSelect(suggestion.phrase);
           }}
           onMouseEnter={() => onSuggestionHover(index)}
