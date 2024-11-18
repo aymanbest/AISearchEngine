@@ -114,76 +114,81 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
     }, []);
 
     return (
-        <div className="max-w-3xl mx-auto px-4">
+        <div className="max-w-4xl mx-auto px-4 relative">
             {/* Models Selection */}
-            <div className="mb-6 relative">
-                <div className="flex gap-3 overflow-x-auto no-scrollbar py-2">
+            <div className="relative w-full mb-8">
+                <div className="flex gap-3 justify-center overflow-x-auto hide-scrollbar py-2">
                     {MODELS.map((model) => (
                         <button
                             key={model.id}
                             onClick={() => onModelChange(model.id)}
                             className={`
-                                flex items-center gap-2 px-4 py-2.5 rounded-xl
+                                flex items-center gap-2 px-4 py-2 rounded-lg
                                 transition-all duration-300 ease-out
-                                whitespace-nowrap shrink-0
                                 ${selectedModel === model.id 
-                                    ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' 
-                                    : 'bg-white dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-gray-700'
+                                    ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]' 
+                                    : 'bg-gray-800/50 hover:bg-gray-800/80'
                                 }
                             `}
                         >
                             <IconBrain 
                                 size={18} 
-                                className={`transition-transform duration-300
-                                    ${selectedModel === model.id ? 'animate-pulse' : 'group-hover:rotate-12'}`}
+                                className={`transition-all duration-300
+                                    ${selectedModel === model.id 
+                                        ? 'text-white' 
+                                        : 'text-blue-400'
+                                    }
+                                `}
                             />
-                            <span className="font-medium">{model.name}</span>
+                            <span className={`text-sm font-medium
+                                ${selectedModel === model.id 
+                                    ? 'text-white' 
+                                    : 'text-gray-300'
+                                }`}>
+                                {model.name}
+                            </span>
                         </button>
                     ))}
                 </div>
             </div>
 
             {/* Search Form */}
-            <form onSubmit={handleSubmit} className="relative">
-                <div className="group">
-                    {/* Glow effect BEHIND the input */}
-                    <div className="absolute -inset-[2px] bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-purple-500/0 
-                        rounded-xl opacity-0 group-hover:opacity-100 blur transition duration-300 -z-10" />
-                    
+            <form onSubmit={handleSubmit} className="relative group">
+                {/* Glow effect container */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 
+                    rounded-xl opacity-0 group-focus-within:opacity-100 blur-lg
+                    transition-all duration-500" />
+
+                <div className="relative">
                     <input
                         ref={inputRef}
                         type="text"
                         value={input}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
-                        className="w-full px-5 py-4 rounded-xl
-                            bg-white dark:bg-gray-800
-                            border border-gray-200 dark:border-gray-700
-                            shadow-sm hover:shadow-md
-                            focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
+                        className="w-full px-5 py-3 rounded-xl
+                            bg-gray-800/50
+                            border border-gray-700/50
+                            focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20
                             transition-all duration-300
-                            text-base placeholder:text-gray-400
+                            text-gray-200 placeholder:text-gray-500
                             relative z-10"
                         placeholder="Ask me anything..."
                     />
 
                     <button
                         type="submit"
-                        className="absolute right-3 top-1/2 -translate-y-1/2
+                        className="absolute right-2 top-1/2 -translate-y-1/2
                             p-2 rounded-lg
-                            text-gray-400 hover:text-blue-500 hover:bg-blue-50
-                            dark:hover:bg-gray-700
+                            bg-blue-600 hover:bg-blue-500
                             transition-all duration-300
-                            z-20"
+                            z-10"
                         aria-label="Search"
                     >
                         {loading ? (
-                            <div className="relative w-5 h-5">
-                                <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 
-                                    border-r-blue-500 animate-spin" />
-                            </div>
+                            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                         ) : (
-                            <IconSearch size={20} />
+                            <IconSearch size={20} className="text-white" />
                         )}
                     </button>
                 </div>
@@ -191,23 +196,22 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
                 {/* Suggestions */}
                 {showSuggestions && suggestions.length > 0 && (
                     <div className="absolute w-full mt-2 py-1 rounded-xl
-                        bg-white dark:bg-gray-800
-                        border border-gray-200 dark:border-gray-700
-                        shadow-lg z-30">
+                        bg-gray-800/95 border border-gray-700/50
+                        shadow-lg z-50">
                         {suggestions.map((suggestion, index) => (
                             <button
                                 key={index}
                                 type="button"
                                 onMouseEnter={() => setSelectedIndex(index)}
                                 onClick={() => handleSuggestionClick(suggestion.phrase)}
-                                className={`w-full px-5 py-2.5 text-left flex items-center gap-3
+                                className={`w-full px-4 py-2 text-left flex items-center gap-3
                                     transition-colors duration-200
                                     ${selectedIndex === index 
-                                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600' 
-                                        : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                                        ? 'bg-gray-700/50 text-blue-400' 
+                                        : 'text-gray-300 hover:bg-gray-700/30'
                                     }`}
                             >
-                                <IconSearch size={16} className="text-gray-400" />
+                                <IconSearch size={16} className="text-gray-500" />
                                 <span>{suggestion.highlighted}</span>
                             </button>
                         ))}
