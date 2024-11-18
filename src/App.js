@@ -118,6 +118,7 @@ function App() {
           wiki: false,
           title: div.querySelector('.result__title')?.textContent?.replace(/\n/g, '').trim() || 'No title',
           link: resolveLink(obfuscatedLink),
+          icon: div.querySelector('.result__icon__img')?.src || null,
           description:
             div.querySelector('.result__snippet')?.textContent?.replace(/\n/g, '').trim() || 'No description',
         };

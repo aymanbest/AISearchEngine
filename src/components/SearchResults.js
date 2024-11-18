@@ -36,9 +36,18 @@ function SearchResults({ results }) {
                     />
                 )}
                 <div className="flex items-start justify-between gap-4 mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {cleanText(result.title)}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                        {result.icon && (
+                            <img 
+                                src={result.icon} 
+                                alt="favicon"
+                                className="w-5 h-5 object-contain"
+                            />
+                        )}
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                            {cleanText(result.title)}
+                        </h3>
+                    </div>
                     <a href={result.link} 
                        target="_blank" 
                        rel="noopener noreferrer"
