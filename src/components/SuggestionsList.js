@@ -1,4 +1,5 @@
 import React from 'react';
+import { IconSearch } from '@tabler/icons-react';
 
 const SuggestionsList = ({ 
   suggestions, 
@@ -6,32 +7,41 @@ const SuggestionsList = ({
   onSuggestionSelect, 
   onSuggestionHover 
 }) => {
-  const baseStyles = "absolute mt-2 w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 z-[100] max-h-[300px] overflow-y-auto";
-  const itemStyles = "px-4 py-3 cursor-pointer select-none";
-  
   return (
-    <ul 
-      className={baseStyles}
-      role="listbox"
-      aria-label="Search suggestions"
-    >
+    <div className="absolute w-full mt-2 py-1 rounded-xl
+        bg-gray-800/95 border border-gray-700/50
+        shadow-lg backdrop-blur-sm z-50
+        animate-fade-in-down">
       {suggestions.map((suggestion, index) => (
-        <li
+        <button
           key={`suggestion-${index}`}
+          type="button"
           role="option"
           aria-selected={index === selectedIndex}
-          className={`
-            ${itemStyles}
-            ${index === selectedIndex ? 'bg-blue-100 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
-            ${index !== suggestions.length - 1 && 'border-b dark:border-gray-700'}
-          `}
           onMouseEnter={() => onSuggestionHover(index)}
           onClick={() => onSuggestionSelect(suggestion.phrase)}
+          className={`w-full px-4 py-2.5 text-left flex items-center gap-3
+              transition-colors duration-200 group
+              ${selectedIndex === index 
+                ? 'bg-gray-700/50 text-blue-400' 
+                : 'text-gray-300 hover:bg-gray-700/30'}`}
         >
-          {suggestion.highlighted || suggestion.phrase}
-        </li>
+          <IconSearch 
+            size={16} 
+            className={`text-gray-500 group-hover:text-blue-500 
+              transition-colors duration-200
+              ${selectedIndex === index ? 'text-blue-500' : ''}`}
+          />
+          <span className="relative">
+            {suggestion.highlighted || suggestion.phrase}
+            {selectedIndex === index && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 
+                bg-blue-500/20 rounded-full" />
+            )}
+          </span>
+        </button>
       ))}
-    </ul>
+    </div>
   );
 };
 
