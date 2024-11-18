@@ -1,70 +1,101 @@
-# Getting Started with Create React App
+```markdown
+# AI-Powered Search Engine
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern search engine application built with React that combines web search results with AI-powered answers and image generation capabilities.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- 🔍 Web search with DuckDuckGo integration
+- 🤖 AI-powered answers using multiple language models:
+  - GPT-4
+  - GPT-4 Mini
+  - Mixtral 8x7B
+  - Claude 3 Haiku
+  - Llama 3 70B
+- 🎨 AI Image Generation with models:
+  - SDXL
+  - Stable Diffusion 3
+  - Playground v2.5
+  - Flux Realism
+- 🌗 Dark/Light mode support
+- 💡 Search suggestions with autocomplete
+- 📱 Responsive design
 
-### `npm start`
+## Getting Started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Prerequisites
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Node.js (version 14 or higher)
+- npm or yarn
 
-### `npm test`
+### Installation
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Clone the repository:
+```sh
+git clone <your-repo-url>
+cd searchengine
+```
 
-### `npm run build`
+2. Install dependencies:
+```sh
+npm install
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. Create a 
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+.env
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+ file in the root directory and add your environment variables:
+```
+REACT_APP_CORS_PROXY_URL=your_cors_proxy_url
+REACT_APP_DUCKDUCKGO_ENDPOINT=your_duckduckgo_endpoint
+REACT_APP_AI_API_URL=your_ai_api_url
+REACT_APP_AI_SYSTEM_PROMPT=your_system_prompt
+REACT_APP_AI_API_IMAGE=your_ai_image_api_url
+```
 
-### `npm run eject`
+4. Start the development server:
+```sh
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+The app will be available at `http://localhost:3000`
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Building for Production
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+To create a production build:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```sh
+npm run build
+```
 
-## Learn More
+## Technologies Used
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- React
+- Tailwind CSS
+- DuckDuckGo API
+- Various AI Models
+- @tabler/icons-react
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Project Structure
 
-### Code Splitting
+```
+src/
+  ├── components/
+  │   ├── AISearch.js      # AI answer generation
+  │   ├── ImageGenerator.js # AI image generation
+  │   ├── SearchBar.js     # Search input and suggestions
+  │   ├── SearchResults.js # Web search results display
+  │   └── SuggestionsList.js # Search suggestions
+  ├── App.js
+  └── index.js
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Contributing
 
-### Analyzing the Bundle Size
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## License
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This project is licensed under the MIT License - see the LICENSE file for details.
+```
