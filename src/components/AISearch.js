@@ -1,13 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { IconBrain } from '@tabler/icons-react';
-
-const MODELS = [
-    { id: 'gpt-4o-mini', name: 'GPT-4 Mini' },
-    { id: 'gpt-4', name: 'GPT-4' },
-    { id: 'mixtral-8x7b', name: 'Mixtral 8x7B' },
-    { id: 'claude-3-haiku', name: 'Claude 3 Haiku' },
-    { id: 'llama-3.1-70b', name: 'Llama 3 70B' }
-  ];
 
 async function startAISearch(query, setResultText, model) {
   try {

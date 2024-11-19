@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IconPhoto, IconLoader2, IconPencil, IconDownload, IconPalette } from '@tabler/icons-react';
+import { IconPhoto, IconLoader2, IconDownload, IconPalette } from '@tabler/icons-react';
 
 
 const secureImageUrl = (url) => {

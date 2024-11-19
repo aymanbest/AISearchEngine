@@ -11,6 +11,81 @@ const MODELS = [
     { id: 'llama-3.1-70b', name: 'Llama 3 70B' }
 ];
 
+const REGIONS = [
+    { value: '', name: 'All Regions' },
+    { value: 'ar-es', name: 'Argentina' },
+    { value: 'au-en', name: 'Australia' },
+    { value: 'at-de', name: 'Austria' },
+    { value: 'be-fr', name: 'Belgium (fr)' },
+    { value: 'be-nl', name: 'Belgium (nl)' },
+    { value: 'br-pt', name: 'Brazil' },
+    { value: 'bg-bg', name: 'Bulgaria' },
+    { value: 'ca-en', name: 'Canada (en)' },
+    { value: 'ca-fr', name: 'Canada (fr)' },
+    { value: 'ct-ca', name: 'Catalonia' },
+    { value: 'cl-es', name: 'Chile' },
+    { value: 'cn-zh', name: 'China' },
+    { value: 'co-es', name: 'Colombia' },
+    { value: 'hr-hr', name: 'Croatia' },
+    { value: 'cz-cs', name: 'Czech Republic' },
+    { value: 'dk-da', name: 'Denmark' },
+    { value: 'ee-et', name: 'Estonia' },
+    { value: 'fi-fi', name: 'Finland' },
+    { value: 'fr-fr', name: 'France' },
+    { value: 'de-de', name: 'Germany' },
+    { value: 'gr-el', name: 'Greece' },
+    { value: 'hk-tzh', name: 'Hong Kong' },
+    { value: 'hu-hu', name: 'Hungary' },
+    { value: 'is-is', name: 'Iceland' },
+    { value: 'in-en', name: 'India (en)' },
+    { value: 'id-en', name: 'Indonesia (en)' },
+    { value: 'ie-en', name: 'Ireland' },
+    { value: 'il-en', name: 'Israel (en)' },
+    { value: 'it-it', name: 'Italy' },
+    { value: 'jp-jp', name: 'Japan' },
+    { value: 'kr-kr', name: 'Korea' },
+    { value: 'lv-lv', name: 'Latvia' },
+    { value: 'lt-lt', name: 'Lithuania' },
+    { value: 'my-en', name: 'Malaysia (en)' },
+    { value: 'mx-es', name: 'Mexico' },
+    { value: 'nl-nl', name: 'Netherlands' },
+    { value: 'nz-en', name: 'New Zealand' },
+    { value: 'no-no', name: 'Norway' },
+    { value: 'pk-en', name: 'Pakistan (en)' },
+    { value: 'pe-es', name: 'Peru' },
+    { value: 'ph-en', name: 'Philippines (en)' },
+    { value: 'pl-pl', name: 'Poland' },
+    { value: 'pt-pt', name: 'Portugal' },
+    { value: 'ro-ro', name: 'Romania' },
+    { value: 'ru-ru', name: 'Russia' },
+    { value: 'xa-ar', name: 'Saudi Arabia' },
+    { value: 'sg-en', name: 'Singapore' },
+    { value: 'sk-sk', name: 'Slovakia' },
+    { value: 'sl-sl', name: 'Slovenia' },
+    { value: 'za-en', name: 'South Africa' },
+    { value: 'es-ca', name: 'Spain (ca)' },
+    { value: 'es-es', name: 'Spain (es)' },
+    { value: 'se-sv', name: 'Sweden' },
+    { value: 'ch-de', name: 'Switzerland (de)' },
+    { value: 'ch-fr', name: 'Switzerland (fr)' },
+    { value: 'tw-tzh', name: 'Taiwan' },
+    { value: 'th-en', name: 'Thailand (en)' },
+    { value: 'tr-tr', name: 'Turkey' },
+    { value: 'us-en', name: 'US (English)' },
+    { value: 'us-es', name: 'US (Spanish)' },
+    { value: 'ua-uk', name: 'Ukraine' },
+    { value: 'uk-en', name: 'United Kingdom' },
+    { value: 'vn-en', name: 'Vietnam (en)' }
+];
+
+const TIMES = [
+    { value: '', name: 'Any Time' },
+    { value: 'd', name: 'Past Day' },
+    { value: 'w', name: 'Past Week' },
+    { value: 'm', name: 'Past Month' },
+    { value: 'y', name: 'Past Year' }
+];
+
 async function fetchAutocompleteSuggestions(query) {
     try {
         if (!query.trim()) return [];
@@ -37,6 +112,8 @@ function highlightMatch(text, query) {
 
 function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
     const [input, setInput] = useState('');
+    const [region, setRegion] = useState('');
+    const [time, setTime] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -63,7 +140,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
         setInput(suggestionText);
         setShowSuggestions(false);
         setSuggestions([]);
-        onSearch(suggestionText);
+        onSearch(suggestionText, region, time);
     };
 
     // Handle keyboard navigation
@@ -92,13 +169,12 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
         if (!input.trim()) return;
 
         setLoading(true);
-        onSearch(input);
+        onSearch(input, region, time);
         setSuggestions([]);
         setShowSuggestions(false);
         setSelectedIndex(-1);
         setLoading(false);
     };
-
 
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
@@ -140,7 +216,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
             </div>
 
             {/* Search Form */}
-            <form onSubmit={handleSubmit} className="relative group">
+            <form onSubmit={handleSubmit} className="relative group space-y-4">
                 {/* Glow effect container */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 
                     rounded-xl opacity-0 group-focus-within:opacity-100 blur-lg
@@ -177,6 +253,28 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
                             <IconSearch size={20} className="text-white" />
                         )}
                     </button>
+                </div>
+
+                {/* Region and Time Filters */}
+                <div className="flex gap-4">
+                    <select
+                        className="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700/50 text-gray-200 z-10"
+                        value={region}
+                        onChange={(e) => setRegion(e.target.value)}
+                    >
+                        {REGIONS.map(({ value, name }) => (
+                            <option key={value} value={value}>{name}</option>
+                        ))}
+                    </select>
+                    <select
+                        className="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700/50 text-gray-200 z-10"
+                        value={time}
+                        onChange={(e) => setTime(e.target.value)}
+                    >
+                        {TIMES.map(({ value, name }) => (
+                            <option key={value} value={value}>{name}</option>
+                        ))}
+                    </select>
                 </div>
 
                 {/* Suggestions */}

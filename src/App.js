@@ -8,20 +8,22 @@ import './App.css';
 
 function App() {
   const [query, setQuery] = useState('');
-  // eslint-disable-next-line
-  const [results, setResults] = useState([]);
+  const [resultsHistory, setResultsHistory] = useState([]);
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
-  const [activeTab, setActiveTab] = useState('search'); // Add this
-  const [showMenu, setShowMenu] = useState(false); // Add this
-  // eslint-disable-next-line
+  const [activeTab, setActiveTab] = useState('search');
+  const [showMenu, setShowMenu] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
-  // eslint-disable-next-line
+  // eslint-disable-next-line no-unused-vars
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('darkMode') === 'true' ||
       window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+  const [nextPageLink, setNextPageLink] = useState(null);
+  const [animationClass, setAnimationClass] = useState('');
 
   useEffect(() => {
     if (darkMode) {
@@ -32,37 +34,30 @@ function App() {
     localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
 
-  const handleSearch = async (searchQuery) => {
+  const handleSearch = async (searchQuery, region, time, nextPage = false) => {
     setQuery(searchQuery);
     setHasSearched(true);
     setLoading(true);
     setError(null);
 
     try {
-      // Use proper URL encoding and concatenation
       const encodedQuery = encodeURIComponent(searchQuery);
-      const response = await fetch(
-        `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?q=${encodedQuery}`
-      );
+      const url = nextPage ? nextPageLink : `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?q=${encodedQuery}&df=${time}&kl=${region}`;
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Extract the HTML content from the returned string
       let rawHtml = await response.text();
       if (rawHtml.startsWith('"') && rawHtml.endsWith('"')) {
-        rawHtml = rawHtml.slice(1, -1); // Remove the wrapping quotes
+        rawHtml = rawHtml.slice(1, -1);
       }
 
-      // Decode any escaped characters (if necessary)
       const decodedHtml = rawHtml.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-
-      // Parse the HTML content
       const parser = new DOMParser();
       const doc = parser.parseFromString(decodedHtml, 'text/html');
 
-      // Helper function to extract actual URLs from DuckDuckGo's obfuscated links
       const resolveLink = (url) => {
         try {
           const parsedUrl = new URL(url);
@@ -76,10 +71,9 @@ function App() {
         } catch (e) {
           console.error('Error resolving URL:', e);
         }
-        return url; // Return the original URL if no `uddg` found
+        return url;
       };
 
-      // Extract Wikipedia result (zero-click info)
       const wikipediaDiv = doc.querySelector('.zci-wrapper');
       const wikipediaResult = wikipediaDiv
         ? {
@@ -100,7 +94,6 @@ function App() {
         }
         : null;
 
-      // Clean up the description
       if (wikipediaResult) {
         wikipediaResult.description = wikipediaResult.description
           .replace(/\s+/g, ' ')
@@ -108,9 +101,6 @@ function App() {
           .trim();
       }
 
-      console.log('Wikipedia result:', wikipediaResult);
-
-      // Extract regular search results
       const resultsDivs = doc.querySelectorAll('.results_links_deep');
       const parsedResults = Array.from(resultsDivs).map((div) => {
         const obfuscatedLink = div.querySelector('.result__a')?.href || '';
@@ -124,10 +114,13 @@ function App() {
         };
       });
 
-      console.log('Parsed results:', parsedResults);
+      const nextPageForm = doc.querySelector('.nav-link form');
+      const nextPageParams = new URLSearchParams(new FormData(nextPageForm)).toString();
+      const nextPageUrl = `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?${nextPageParams}`;
+      setNextPageLink(nextPageUrl);
 
-      // Combine and set results
-      setResults([...(wikipediaResult ? [wikipediaResult] : []), ...parsedResults]);
+      setResultsHistory(prevHistory => nextPage ? [...prevHistory, parsedResults] : [[...(wikipediaResult ? [wikipediaResult] : []), ...parsedResults]]);
+      setCurrentPageIndex(prevIndex => nextPage ? prevIndex + 1 : 0);
     } catch (err) {
       console.error('Search error:', err);
       setError('Failed to fetch search results');
@@ -136,12 +129,32 @@ function App() {
     }
   };
 
+  const handleNextPage = () => {
+    setAnimationClass('opacity-0 transition-opacity duration-500');
+    setTimeout(() => {
+      if (currentPageIndex < resultsHistory.length - 1) {
+        setCurrentPageIndex(currentPageIndex + 1);
+      } else {
+        handleSearch(query, null, null, true);
+      }
+      setAnimationClass('opacity-100 transition-opacity duration-500');
+    }, 500);
+  };
+
+  const handlePreviousPage = () => {
+    setAnimationClass('opacity-0 transition-opacity duration-500');
+    setTimeout(() => {
+      if (currentPageIndex > 0) {
+        setCurrentPageIndex(currentPageIndex - 1);
+      }
+      setAnimationClass('opacity-100 transition-opacity duration-500');
+    }, 500);
+  };
 
   return (
     <div className={darkMode ? 'dark' : ''}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        <header className={`p-4 flex justify-between items-center sticky top-0 bg-gray-50 dark:bg-gray-900 z-50 
-        ${hasSearched ? '' : ''}`}>
+        <header className={`p-4 flex justify-between items-center sticky top-0 bg-gray-50 dark:bg-gray-900 z-50 ${hasSearched ? '' : ''}`}>
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -151,15 +164,13 @@ function App() {
             </button>
 
             {showMenu && (
-              <div className="absolute left-0 mt-2 w-48 rounded-lg shadow-lg 
-                    bg-white dark:bg-gray-800 border dark:border-gray-700 overflow-hidden">
+              <div className="absolute left-0 mt-2 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 border dark:border-gray-700 overflow-hidden">
                 <button
                   onClick={() => {
                     setActiveTab('search');
                     setShowMenu(false);
                   }}
-                  className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeTab === 'search' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                  className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeTab === 'search' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   <IconSearch size={20} />
                   Search
@@ -169,8 +180,7 @@ function App() {
                     setActiveTab('image');
                     setShowMenu(false);
                   }}
-                  className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeTab === 'image' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                  className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeTab === 'image' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   <IconPhoto size={20} />
                   Image Generator
@@ -187,11 +197,9 @@ function App() {
           </button>
         </header>
 
-        <main className={`container mx-auto px-4 transition-all duration-500 ease-in-out 
-    ${activeTab === 'search' && !hasSearched ? 'mt-[30vh]' : 'mt-4'}`}>
+        <main className={`container mx-auto px-4 transition-all duration-500 ease-in-out ${activeTab === 'search' && !hasSearched ? 'mt-[30vh]' : 'mt-4'}`}>
           {activeTab === 'search' ? (
             <div className="flex flex-col gap-6">
-              {/* Sticky Search Section */}
               <div className="sticky top-0 z-50 bg-gray-50 dark:bg-gray-900 pt-4 pb-6">
                 <SearchBar
                   onSearch={handleSearch}
@@ -210,10 +218,14 @@ function App() {
                 )}
               </div>
 
-              {/* Scrollable Results */}
-              {hasSearched && (
-                <div className="relative">
-                  <SearchResults results={results} />
+              {hasSearched && resultsHistory[currentPageIndex] && (
+                <div className={`relative ${animationClass}`}>
+                  <SearchResults
+                    results={resultsHistory[currentPageIndex]}
+                    onNextPage={handleNextPage}
+                    onPreviousPage={handlePreviousPage}
+                    currentPageIndex={currentPageIndex}
+                  />
                 </div>
               )}
             </div>

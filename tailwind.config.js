@@ -6,6 +6,12 @@ module.exports = {
   ],
   theme: {
     extend: {
+      transitionProperty: {
+        'opacity': 'opacity',
+      },
+      transitionDuration: {
+        '500': '500ms',
+      },
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translateY(0)' },
