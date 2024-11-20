@@ -28,23 +28,22 @@ function highlightMatch(text, query) {
     );
 }
 
-function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, searchHistory, setSearchHistory }) {
+function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, searchHistory, setSearchHistory, onSearchHistoryClick }) {
     const [input, setInput] = useState('');
     const [region, setRegion] = useState('');
     const [time, setTime] = useState('');
     const [suggestions, setSuggestions] = useState([]);
-    // eslint-disable-next-line no-unused-vars
-    const [showSuggestions, setShowSuggestions] = useState(false);
+    // eslint-disable-next-line
+    //const [showSuggestions, setShowSuggestions] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
 
-    // Handle input change and fetch suggestions
     const handleInputChange = async (e) => {
         const value = e.target.value;
         setInput(value);
-        setShowSuggestions(true);
+        //setShowSuggestions(true);
         setShowHistory(true);
 
         if (value.trim()) {
@@ -55,17 +54,15 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
         }
     };
 
-    // Handle suggestion click
     const handleSuggestionClick = (suggestion) => {
         const suggestionText = suggestion.phrase || suggestion;
         setInput(suggestionText);
-        setShowSuggestions(false);
+       // setShowSuggestions(false);
         setShowHistory(false);
         setSuggestions([]);
         onSearch(suggestionText, region, time);
     };
 
-    // Handle keyboard navigation
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
             if (selectedIndex >= 0 && suggestions[selectedIndex]) {
@@ -81,12 +78,11 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
             e.preventDefault();
             setSelectedIndex(prev => prev > -1 ? prev - 1 : prev);
         } else if (e.key === 'Escape') {
-            setShowSuggestions(false);
+            //setShowSuggestions(false);
             setShowHistory(false);
         }
     };
 
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!input.trim()) return;
@@ -94,43 +90,52 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
         setLoading(true);
         onSearch(input, region, time);
         setSuggestions([]);
-        setShowSuggestions(false);
+        //setShowSuggestions(false);
         setShowHistory(false);
         setSelectedIndex(-1);
         setLoading(false);
     };
 
-    // Handle input focus to show search history
     const handleInputFocus = () => {
         if (!input.trim()) {
-            setShowSuggestions(true);
+           // setShowSuggestions(true);
             setShowHistory(true);
         }
     };
 
-    // Handle input blur to hide search history
     const handleInputBlur = () => {
         setTimeout(() => {
-            setShowSuggestions(false);
+            //setShowSuggestions(false);
             setShowHistory(false);
-        }, 200); // Delay to allow click events to register
+        }, 200);
     };
 
-    // Handle remove search history item
     const handleRemoveHistory = (index) => {
         const newHistory = [...searchHistory];
-        newHistory[index] = 'Search deleted';
+        newHistory[index] = 'Search Deleted';
         setSearchHistory(newHistory);
         setTimeout(() => {
             const updatedHistory = newHistory.filter((_, i) => i !== index);
             setSearchHistory(updatedHistory);
             localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
-        }, 2000); // 2 seconds delay for animation
+        }, 2000);
+    };
+
+    const handleHistoryMouseEnter = (index) => {
+        setSelectedIndex(index);
+    };
+
+    const handleHistoryMouseLeave = () => {
+        setSelectedIndex(-1);
+    };
+
+    const handleSearchHistoryClick = (query) => {
+        setInput(query);
+        onSearchHistoryClick(query, region, time);
     };
 
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
-            {/* MODELSAI Selection */}
             <div className="relative w-full mb-8">
                 <div className="flex gap-3 justify-center overflow-x-auto hide-scrollbar py-2">
                     {MODELSAI.map((model) => (
@@ -142,7 +147,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                                 transition-all duration-300 ease-out
                                 ${selectedModel === model.id
                                     ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]'
-                                    : 'bg-gray-800/50 hover:bg-gray-800/80'
+                                    : 'bg-gray-200 dark:bg-gray-800/50 hover:bg-gray-300 dark:hover:bg-gray-800/80'
                                 }
                             `}
                         >
@@ -158,7 +163,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                             <span className={`text-sm font-medium
                                 ${selectedModel === model.id
                                     ? 'text-white'
-                                    : 'text-gray-300'
+                                    : 'text-gray-900 dark:text-gray-300'
                                 }`}>
                                 {model.name}
                             </span>
@@ -167,9 +172,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                 </div>
             </div>
 
-            {/* Search Form */}
             <form onSubmit={handleSubmit} className="relative group space-y-4">
-                {/* Glow effect container */}
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 
                     rounded-xl opacity-0 group-focus-within:opacity-100 blur-lg
                     transition-all duration-500" />
@@ -184,11 +187,11 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
                         className="w-full px-5 py-3 rounded-xl
-                            bg-gray-800/50
-                            border border-gray-700/50
+                            bg-gray-200 dark:bg-gray-800/50
+                            border border-gray-300 dark:border-gray-700/50
                             focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20
                             transition-all duration-300
-                            text-gray-200 placeholder:text-gray-500
+                            text-gray-900 dark:text-gray-200 placeholder:text-gray-500
                             relative z-10"
                         placeholder="Ask me anything..."
                     />
@@ -209,10 +212,9 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                     </button>
                 </div>
 
-                {/* Region and Time Filters */}
                 <div className="flex gap-4">
                     <select
-                        className="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700/50 text-gray-200 z-10"
+                        className="w-full px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700/50 text-gray-900 dark:text-gray-200 z-10"
                         value={region}
                         onChange={(e) => setRegion(e.target.value)}
                     >
@@ -221,7 +223,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                         ))}
                     </select>
                     <select
-                        className="w-full px-4 py-3 rounded-xl bg-gray-800/50 border border-gray-700/50 text-gray-200 z-10"
+                        className="w-full px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700/50 text-gray-900 dark:text-gray-200 z-10"
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
                     >
@@ -231,7 +233,6 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                     </select>
                 </div>
 
-                {/* Suggestions */}
                 {showHistory && suggestions.length > 0 && (
                     <SuggestionsList
                         suggestions={suggestions}
@@ -241,18 +242,28 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                     />
                 )}
 
-                {/* Search History */}
                 {showHistory && suggestions.length === 0 && (
-                    <div className="absolute w-full mt-2 py-1 rounded-xl bg-gray-800/95 border border-gray-700/50 shadow-lg backdrop-blur-sm z-50">
+                    <div className="absolute w-full mt-2 py-1 rounded-xl bg-gray-200 dark:bg-gray-800/95 border border-gray-300 dark:border-gray-700/50 shadow-lg backdrop-blur-sm z-50">
                         {searchHistory.map((query, index) => (
-                            <div key={index} className="flex items-center justify-between px-4 py-2.5 text-left transition-colors duration-200 group">
+                            <div
+                                key={index}
+                                onClick={() => handleSearchHistoryClick(query)}
+                                onMouseEnter={() => handleHistoryMouseEnter(index)}
+                                onMouseLeave={handleHistoryMouseLeave}
+                                className={`flex items-center justify-between w-full px-4 py-2.5 text-left transition-colors duration-200 group
+                    ${selectedIndex === index ? 'bg-blue-100 dark:bg-blue-900' : ''}
+                `}
+                            >
                                 <div className="flex items-center gap-3">
                                     <IconHistory size={16} className="text-gray-500" />
-                                    <span className="text-gray-300">{query}</span>
+                                    <span className="text-gray-900 dark:text-gray-100">{query}</span>
                                 </div>
                                 {query !== 'Search deleted' && (
                                     <button
-                                        onClick={() => handleRemoveHistory(index)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRemoveHistory(index);
+                                        }}
                                         className="text-red-500 hover:text-red-700 transition-colors duration-200"
                                     >
                                         <IconTrash size={16} />

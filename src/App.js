@@ -4,6 +4,7 @@ import SearchResults from './components/SearchResults';
 import AISearch from './components/AISearch';
 import { IconSun, IconMoon, IconDotsVertical, IconSearch, IconPhoto } from '@tabler/icons-react';
 import ImageGenerator from './components/ImageGenerator';
+
 import './App.css';
 
 function App() {
@@ -13,6 +14,10 @@ function App() {
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
   const [activeTab, setActiveTab] = useState('search');
+  // eslint-disable-next-line
+  const [region, setRegion] = useState('');
+  // eslint-disable-next-line
+  const [time, setTime] = useState('');
   const [showMenu, setShowMenu] = useState(false);
   // eslint-disable-next-line no-unused-vars
   const [loading, setLoading] = useState(false);
@@ -37,7 +42,7 @@ function App() {
     localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
 
-  const handleSearch = async (searchQuery, region, time, nextPage = false) => {
+  const handleSearch = async (searchQuery, region = '', time = '', nextPage = false) => {
     setQuery(searchQuery);
     setHasSearched(true);
     setLoading(true);
@@ -49,93 +54,99 @@ function App() {
     localStorage.setItem('searchHistory', JSON.stringify(newHistory));
 
     try {
-      const encodedQuery = encodeURIComponent(searchQuery);
-      const url = nextPage ? nextPageLink : `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?q=${encodedQuery}&df=${time}&kl=${region}`;
-      const response = await fetch(url);
+        const encodedQuery = encodeURIComponent(searchQuery);
+        const url = nextPage ? nextPageLink : `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?q=${encodedQuery}&df=${time}&kl=${region}`;
+        const response = await fetch(url);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-      let rawHtml = await response.text();
-      if (rawHtml.startsWith('"') && rawHtml.endsWith('"')) {
-        rawHtml = rawHtml.slice(1, -1);
-      }
+        let rawHtml = await response.text();
+        if (rawHtml.startsWith('"') && rawHtml.endsWith('"')) {
+            rawHtml = rawHtml.slice(1, -1);
+        }
 
-      const decodedHtml = rawHtml.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(decodedHtml, 'text/html');
+        const decodedHtml = rawHtml.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(decodedHtml, 'text/html');
 
-      const resolveLink = (url) => {
-        try {
-          const parsedUrl = new URL(url);
-          const queryParams = parsedUrl.search.slice(1).split('&');
-          for (const queryParam of queryParams) {
-            const [key, value] = queryParam.split('=');
-            if (key === 'uddg') {
-              return decodeURIComponent(value);
+        const resolveLink = (url) => {
+            try {
+                if (!url) throw new Error('Invalid URL');
+                const parsedUrl = new URL(url);
+                const queryParams = parsedUrl.search.slice(1).split('&');
+                for (const queryParam of queryParams) {
+                    const [key, value] = queryParam.split('=');
+                    if (key === 'uddg') {
+                        return decodeURIComponent(value);
+                    }
+                }
+            } catch (e) {
+                console.error('Error resolving URL:', e);
+                return ''; // Return an empty string or a default value when the URL is invalid
             }
-          }
-        } catch (e) {
-          console.error('Error resolving URL:', e);
-        }
-        return url;
-      };
-
-      const wikipediaDiv = doc.querySelector('.zci-wrapper');
-      const wikipediaResult = wikipediaDiv
-        ? {
-          wiki: true,
-          title: wikipediaDiv.querySelector('.zci__heading a')?.textContent?.trim() || 'Wikipedia',
-          link: resolveLink(wikipediaDiv.querySelector('.zci__heading a')?.href || ''),
-          image: wikipediaDiv.querySelector('.zci__image')?.src || null,
-          description:
-            wikipediaDiv
-              .querySelector('#zero_click_abstract')
-              ?.childNodes?.length > 0
-              ? Array.from(wikipediaDiv.querySelector('#zero_click_abstract').childNodes)
-                .filter((node) => node.nodeType === Node.TEXT_NODE)
-                .map((node) => node.textContent.trim())
-                .filter((text) => text)
-                .join(' ')
-              : 'No description available',
-        }
-        : null;
-
-      if (wikipediaResult) {
-        wikipediaResult.description = wikipediaResult.description
-          .replace(/\s+/g, ' ')
-          .replace(/\s+\./g, '.')
-          .trim();
-      }
-
-      const resultsDivs = doc.querySelectorAll('.results_links_deep');
-      const parsedResults = Array.from(resultsDivs).map((div) => {
-        const obfuscatedLink = div.querySelector('.result__a')?.href || '';
-        return {
-          wiki: false,
-          title: div.querySelector('.result__title')?.textContent?.replace(/\n/g, '').trim() || 'No title',
-          link: resolveLink(obfuscatedLink),
-          icon: div.querySelector('.result__icon__img')?.src || null,
-          description:
-            div.querySelector('.result__snippet')?.textContent?.replace(/\n/g, '').trim() || 'No description',
+            return url;
         };
-      });
 
-      const nextPageForm = doc.querySelector('.nav-link form');
-      const nextPageParams = new URLSearchParams(new FormData(nextPageForm)).toString();
-      const nextPageUrl = `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?${nextPageParams}`;
-      setNextPageLink(nextPageUrl);
+        const wikipediaDiv = doc.querySelector('.zci-wrapper');
+        const wikipediaResult = wikipediaDiv
+            ? {
+                wiki: true,
+                title: wikipediaDiv.querySelector('.zci__heading a')?.textContent?.trim() || 'Wikipedia',
+                link: resolveLink(wikipediaDiv.querySelector('.zci__heading a')?.href || ''),
+                image: wikipediaDiv.querySelector('.zci__image')?.src || null,
+                description:
+                    wikipediaDiv
+                        .querySelector('#zero_click_abstract')
+                        ?.childNodes?.length > 0
+                        ? Array.from(wikipediaDiv.querySelector('#zero_click_abstract').childNodes)
+                            .filter((node) => node.nodeType === Node.TEXT_NODE)
+                            .map((node) => node.textContent.trim())
+                            .filter((text) => text)
+                            .join(' ')
+                        : 'No description available',
+            }
+            : null;
 
-      setResultsHistory(prevHistory => nextPage ? [...prevHistory, parsedResults] : [[...(wikipediaResult ? [wikipediaResult] : []), ...parsedResults]]);
-      setCurrentPageIndex(prevIndex => nextPage ? prevIndex + 1 : 0);
+        if (wikipediaResult) {
+            wikipediaResult.description = wikipediaResult.description
+                .replace(/\s+/g, ' ')
+                .replace(/\s+\./g, '.')
+                .trim();
+        }
+
+        const resultsDivs = doc.querySelectorAll('.results_links_deep');
+        const parsedResults = Array.from(resultsDivs).map((div) => {
+            const obfuscatedLink = div.querySelector('.result__a')?.href || '';
+            return {
+                wiki: false,
+                title: div.querySelector('.result__title')?.textContent?.replace(/\n/g, '').trim() || 'No title',
+                link: resolveLink(obfuscatedLink),
+                icon: div.querySelector('.result__icon__img')?.src || null,
+                description:
+                    div.querySelector('.result__snippet')?.textContent?.replace(/\n/g, '').trim() || 'No description',
+            };
+        });
+
+        const nextPageForm = doc.querySelector('.nav-link form');
+        if (nextPageForm) {
+            const nextPageParams = new URLSearchParams(new FormData(nextPageForm)).toString();
+            const nextPageUrl = `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?${nextPageParams}`;
+            setNextPageLink(nextPageUrl);
+        } else {
+            setNextPageLink(null);
+        }
+
+        setResultsHistory(prevHistory => nextPage ? [...prevHistory, parsedResults] : [[...(wikipediaResult ? [wikipediaResult] : []), ...parsedResults]]);
+        setCurrentPageIndex(prevIndex => nextPage ? prevIndex + 1 : 0);
     } catch (err) {
-      console.error('Search error:', err);
-      setError('Failed to fetch search results');
+        console.error('Search error:', err);
+        setError('Failed to fetch search results');
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   const handleNextPage = () => {
     setAnimationClass('opacity-0 transition-opacity duration-500');
@@ -216,6 +227,7 @@ function App() {
                   onModelChange={setSelectedModel}
                   searchHistory={searchHistory}
                   setSearchHistory={setSearchHistory}
+                  onSearchHistoryClick={(query, region, time) => handleSearch(query, region, time)}
                 />
                 {hasSearched && (
                   <div className="mt-6">

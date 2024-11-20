@@ -8,9 +8,8 @@ const secureImageUrl = (url) => {
 };
 
 const DrawingLoader = () => (
-  <div className="mt-4 h-64 bg-gray-800/50 rounded-xl border border-gray-700/50 
+  <div className="mt-4 h-64 bg-gray-200 dark:bg-gray-800/50 rounded-xl border border-gray-300 dark:border-gray-700/50 
       backdrop-blur-sm shadow-lg overflow-hidden relative group">
-    {/* Neural network background animation */}
     <div className="absolute inset-0 opacity-20">
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 
           animate-gradient-x" />
@@ -24,7 +23,6 @@ const DrawingLoader = () => (
       </div>
     </div>
 
-    {/* Center loading animation */}
     <div className="absolute inset-0 flex items-center justify-center">
       <div className="relative">
         <IconPalette
@@ -36,13 +34,11 @@ const DrawingLoader = () => (
       </div>
     </div>
 
-    {/* Loading text */}
     <div className="absolute bottom-4 left-0 right-0 text-center text-gray-400">
       <p className="text-sm animate-pulse">Generating your masterpiece...</p>
     </div>
   </div>
 );
-
 
 function ImageGenerator() {
   const [prompt, setPrompt] = useState('');
@@ -100,7 +96,6 @@ function ImageGenerator() {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Download failed:', error);
-      // Optional: Add user notification here
       alert('Failed to download image. Please try again.');
     }
   };
@@ -108,8 +103,8 @@ function ImageGenerator() {
   const toKebabCase = (str) => {
     return str
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric characters with hyphens
-      .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
+      .replace(/[^a-z0-9]+/g, '-') 
+      .replace(/^-+|-+$/g, ''); 
   };
 
   const handleDownload = (imageUrl, prompt) => {
@@ -133,7 +128,7 @@ function ImageGenerator() {
                 transition-all duration-300 ease-out whitespace-nowrap
                 ${model === id
                   ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]'
-                  : 'bg-gray-800/50 hover:bg-gray-800/80'
+                  : 'bg-gray-200 dark:bg-gray-800/50 hover:bg-gray-300 dark:hover:bg-gray-800/80'
                 }
               `}
             >
@@ -143,7 +138,7 @@ function ImageGenerator() {
                   ${model === id ? 'text-white' : 'text-blue-400'}`}
               />
               <span className={`text-sm font-medium
-                ${model === id ? 'text-white' : 'text-gray-300'}`}>
+                ${model === id ? 'text-white' : 'text-gray-900 dark:text-gray-300'}`}>
                 {name}
               </span>
             </button>
@@ -162,11 +157,11 @@ function ImageGenerator() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Describe the image you want to generate..."
               className="w-full px-5 py-3 rounded-xl
-                bg-gray-800/50
-                border border-gray-700/50
+                bg-gray-200 dark:bg-gray-800/50
+                border border-gray-300 dark:border-gray-700/50
                 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20
                 transition-all duration-300
-                text-gray-200 placeholder:text-gray-500
+                text-gray-900 dark:text-gray-200 placeholder:text-gray-500
                 relative z-10"
             />
             <button
@@ -190,8 +185,8 @@ function ImageGenerator() {
       </form>
 
       {error && (
-        <div className="mt-4 p-4 bg-red-900/30 border border-red-500/50 
-            text-red-200 rounded-xl backdrop-blur-sm
+        <div className="mt-4 p-4 bg-red-200 dark:bg-red-900/30 border border-red-300 dark:border-red-500/50 
+            text-red-900 dark:text-red-200 rounded-xl backdrop-blur-sm
             animate-fade-in">
           {error}
         </div>
@@ -202,14 +197,12 @@ function ImageGenerator() {
       ) : (
         imageUrl && (
           <div className="mt-4 rounded-xl overflow-hidden
-              border border-gray-700/50 shadow-lg
+              border border-gray-300 dark:border-gray-700/50 shadow-lg
               transition-all duration-500 animate-fade-in
               group relative">
-            {/* Image overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent 
                 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-            {/* Main image */}
             <img
               src={imageUrl}
               alt={prompt}
