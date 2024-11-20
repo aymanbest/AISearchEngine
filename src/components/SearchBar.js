@@ -137,7 +137,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
             <div className="relative w-full mb-8">
-                <button onClick={() => scrollModels('left')} className="absolute left-[-50px] top-1/2 transform -translate-y-1/2 z-10 p-2">
+                <button onClick={() => scrollModels('left')} className="absolute left-[-50px] top-1/2 transform -translate-y-1/2 z-10 p-2 hidden md:block">
                     <IconChevronsLeft size={40} />
                 </button>
                 <div className="flex gap-4 justify-start overflow-x-auto hide-scrollbar py-3" ref={modelsContainerRef}>
@@ -164,7 +164,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                         </button>
                     ))}
                 </div>
-                <button onClick={() => scrollModels('right')} className="absolute right-[-50px] top-1/2 transform -translate-y-1/2 z-10 p-2">
+                <button onClick={() => scrollModels('right')} className="absolute right-[-50px] top-1/2 transform -translate-y-1/2 z-10 p-2 hidden md:block">
                     <IconChevronsRight size={40} />
                 </button>
             </div>
