@@ -57,7 +57,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
     const handleSuggestionClick = (suggestion) => {
         const suggestionText = suggestion.phrase || suggestion;
         setInput(suggestionText);
-       // setShowSuggestions(false);
+        // setShowSuggestions(false);
         setShowHistory(false);
         setSuggestions([]);
         onSearch(suggestionText, region, time);
@@ -98,7 +98,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
 
     const handleInputFocus = () => {
         if (!input.trim()) {
-           // setShowSuggestions(true);
+            // setShowSuggestions(true);
             setShowHistory(true);
         }
     };
@@ -137,34 +137,33 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
             <div className="relative w-full mb-8">
-                <div className="flex gap-3 justify-center overflow-x-auto hide-scrollbar py-2">
+                <div className="flex gap-3 justify-start overflow-x-auto hide-scrollbar py-2">
                     {MODELSAI.map((model) => (
                         <button
                             key={model.id}
                             onClick={() => onModelChange(model.id)}
-                            className={`
-                                flex items-center gap-2 px-4 py-2 rounded-lg
-                                transition-all duration-300 ease-out
-                                ${selectedModel === model.id
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ease-out
+                    ${selectedModel === model.id
                                     ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]'
                                     : 'bg-gray-200 dark:bg-gray-800/50 hover:bg-gray-300 dark:hover:bg-gray-800/80'
                                 }
-                            `}
+                `}
                         >
                             <IconBrain
                                 size={18}
                                 className={`transition-all duration-300
-                                    ${selectedModel === model.id
+                        ${selectedModel === model.id
                                         ? 'text-white'
                                         : 'text-blue-400'
                                     }
-                                `}
+                    `}
                             />
                             <span className={`text-sm font-medium
-                                ${selectedModel === model.id
+                    ${selectedModel === model.id
                                     ? 'text-white'
                                     : 'text-gray-900 dark:text-gray-300'
-                                }`}>
+                                }`}
+                            >
                                 {model.name}
                             </span>
                         </button>

@@ -48,9 +48,9 @@ npm install
 ```
 REACT_APP_CORS_PROXY_URL=your_cors_proxy_url
 REACT_APP_DUCKDUCKGO_ENDPOINT=your_duckduckgo_endpoint
-REACT_APP_AI_API_URL=your_ai_api_url
+REACT_APP_AI_API_EDUIDE=api.ed_url
 REACT_APP_AI_SYSTEM_PROMPT=your_system_prompt
-REACT_APP_AI_API_IMAGE=your_ai_image_api_url
+REACT_APP_AI_API_AIRFORCE=api.forc_url
 ```
 
 4. Start the development server:

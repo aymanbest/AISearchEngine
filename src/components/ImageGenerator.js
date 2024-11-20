@@ -54,7 +54,7 @@ function ImageGenerator() {
     setImageUrl(null);
 
     try {
-      const response = await fetch(process.env.REACT_APP_AI_API_IMAGE, {
+      const response = await fetch(process.env.REACT_APP_AI_API_EDUIDE+ 'v1/imagine', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
