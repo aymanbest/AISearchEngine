@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import SuggestionsList from './SuggestionsList';
-import { IconSearch, IconBrain, IconHistory, IconTrash } from '@tabler/icons-react';
+import { IconSearch, IconBrain, IconHistory, IconTrash, IconChevronsRight, IconChevronsLeft } from '@tabler/icons-react';
 import '../index.css';
 import { MODELSAI, REGIONS, TIMES } from '../constants/models';
 
@@ -33,17 +33,15 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
     const [region, setRegion] = useState('');
     const [time, setTime] = useState('');
     const [suggestions, setSuggestions] = useState([]);
-    // eslint-disable-next-line
-    //const [showSuggestions, setShowSuggestions] = useState(false);
     const [showHistory, setShowHistory] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
+    const modelsContainerRef = useRef(null);
 
     const handleInputChange = async (e) => {
         const value = e.target.value;
         setInput(value);
-        //setShowSuggestions(true);
         setShowHistory(true);
 
         if (value.trim()) {
@@ -57,7 +55,6 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
     const handleSuggestionClick = (suggestion) => {
         const suggestionText = suggestion.phrase || suggestion;
         setInput(suggestionText);
-        // setShowSuggestions(false);
         setShowHistory(false);
         setSuggestions([]);
         onSearch(suggestionText, region, time);
@@ -78,7 +75,6 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
             e.preventDefault();
             setSelectedIndex(prev => prev > -1 ? prev - 1 : prev);
         } else if (e.key === 'Escape') {
-            //setShowSuggestions(false);
             setShowHistory(false);
         }
     };
@@ -90,7 +86,6 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
         setLoading(true);
         onSearch(input, region, time);
         setSuggestions([]);
-        //setShowSuggestions(false);
         setShowHistory(false);
         setSelectedIndex(-1);
         setLoading(false);
@@ -98,14 +93,12 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
 
     const handleInputFocus = () => {
         if (!input.trim()) {
-            // setShowSuggestions(true);
             setShowHistory(true);
         }
     };
 
     const handleInputBlur = () => {
         setTimeout(() => {
-            //setShowSuggestions(false);
             setShowHistory(false);
         }, 200);
     };
@@ -134,41 +127,46 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
         onSearchHistoryClick(query, region, time);
     };
 
+    const scrollModels = (direction) => {
+        if (modelsContainerRef.current) {
+            const scrollAmount = direction === 'left' ? -200 : 200;
+            modelsContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    };
+
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
             <div className="relative w-full mb-8">
-                <div className="flex gap-3 justify-start overflow-x-auto hide-scrollbar py-2">
+                <button onClick={() => scrollModels('left')} className="absolute left-[-50px] top-1/2 transform -translate-y-1/2 z-10 p-2">
+                    <IconChevronsLeft size={40} />
+                </button>
+                <div className="flex gap-4 justify-start overflow-x-auto hide-scrollbar py-3" ref={modelsContainerRef}>
                     {MODELSAI.map((model) => (
                         <button
                             key={model.id}
                             onClick={() => onModelChange(model.id)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ease-out
-                    ${selectedModel === model.id
-                                    ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.3)]'
-                                    : 'bg-gray-200 dark:bg-gray-800/50 hover:bg-gray-300 dark:hover:bg-gray-800/80'
-                                }
-                `}
+                            className={`flex items-center gap-3 px-5 py-2 rounded-lg transition 
+            ${selectedModel === model.id
+                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-300'
+                                    : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-300'
+                                }`}
                         >
                             <IconBrain
-                                size={18}
-                                className={`transition-all duration-300
-                        ${selectedModel === model.id
-                                        ? 'text-white'
-                                        : 'text-blue-400'
-                                    }
-                    `}
-                            />
-                            <span className={`text-sm font-medium
-                    ${selectedModel === model.id
+                                size={20}
+                                className={`transition ${selectedModel === model.id
                                     ? 'text-white'
-                                    : 'text-gray-900 dark:text-gray-300'
-                                }`}
-                            >
+                                    : 'text-blue-500 dark:text-blue-400'
+                                    }`}
+                            />
+                            <span className="text-sm font-semibold">
                                 {model.name}
                             </span>
                         </button>
                     ))}
                 </div>
+                <button onClick={() => scrollModels('right')} className="absolute right-[-50px] top-1/2 transform -translate-y-1/2 z-10 p-2">
+                    <IconChevronsRight size={40} />
+                </button>
             </div>
 
             <form onSubmit={handleSubmit} className="relative group space-y-4">
