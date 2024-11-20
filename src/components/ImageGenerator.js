@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IconPhoto, IconLoader2, IconDownload, IconPalette } from '@tabler/icons-react';
-
+import { MODELSIMAGE } from '../constants/models';
 
 const secureImageUrl = (url) => {
   if (!url) return '';
@@ -43,12 +43,6 @@ const DrawingLoader = () => (
   </div>
 );
 
-const MODELS = [
-  { id: 'sdxl', name: 'SDXL' },
-  { id: 'sd-3', name: 'Stable Diffusion 3' },
-  { id: 'playground-v2.5', name: 'Playground v2.5' },
-  { id: 'flux-realism', name: 'Flux Realism' }
-];
 
 function ImageGenerator() {
   const [prompt, setPrompt] = useState('');
@@ -129,7 +123,7 @@ function ImageGenerator() {
     <div className="max-w-2xl mx-auto mt-8 space-y-6">
       <form onSubmit={generateImage} className="space-y-4">
         <div className="flex gap-3 overflow-x-auto hide-scrollbar py-2">
-          {MODELS.map(({ id, name }) => (
+          {MODELSIMAGE.map(({ id, name }) => (
             <button
               key={id}
               type="button"

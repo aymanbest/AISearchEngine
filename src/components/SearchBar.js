@@ -1,90 +1,8 @@
 import React, { useState, useRef } from 'react';
 import SuggestionsList from './SuggestionsList';
-import { IconSearch, IconBrain } from '@tabler/icons-react';
+import { IconSearch, IconBrain, IconHistory, IconTrash } from '@tabler/icons-react';
 import '../index.css';
-
-const MODELS = [
-    { id: 'gpt-4o-mini', name: 'GPT-4 Mini' },
-    { id: 'gpt-4', name: 'GPT-4' },
-    { id: 'mixtral-8x7b', name: 'Mixtral 8x7B' },
-    { id: 'claude-3-haiku', name: 'Claude 3 Haiku' },
-    { id: 'llama-3.1-70b', name: 'Llama 3 70B' }
-];
-
-const REGIONS = [
-    { value: '', name: 'All Regions' },
-    { value: 'ar-es', name: 'Argentina' },
-    { value: 'au-en', name: 'Australia' },
-    { value: 'at-de', name: 'Austria' },
-    { value: 'be-fr', name: 'Belgium (fr)' },
-    { value: 'be-nl', name: 'Belgium (nl)' },
-    { value: 'br-pt', name: 'Brazil' },
-    { value: 'bg-bg', name: 'Bulgaria' },
-    { value: 'ca-en', name: 'Canada (en)' },
-    { value: 'ca-fr', name: 'Canada (fr)' },
-    { value: 'ct-ca', name: 'Catalonia' },
-    { value: 'cl-es', name: 'Chile' },
-    { value: 'cn-zh', name: 'China' },
-    { value: 'co-es', name: 'Colombia' },
-    { value: 'hr-hr', name: 'Croatia' },
-    { value: 'cz-cs', name: 'Czech Republic' },
-    { value: 'dk-da', name: 'Denmark' },
-    { value: 'ee-et', name: 'Estonia' },
-    { value: 'fi-fi', name: 'Finland' },
-    { value: 'fr-fr', name: 'France' },
-    { value: 'de-de', name: 'Germany' },
-    { value: 'gr-el', name: 'Greece' },
-    { value: 'hk-tzh', name: 'Hong Kong' },
-    { value: 'hu-hu', name: 'Hungary' },
-    { value: 'is-is', name: 'Iceland' },
-    { value: 'in-en', name: 'India (en)' },
-    { value: 'id-en', name: 'Indonesia (en)' },
-    { value: 'ie-en', name: 'Ireland' },
-    { value: 'il-en', name: 'Israel (en)' },
-    { value: 'it-it', name: 'Italy' },
-    { value: 'jp-jp', name: 'Japan' },
-    { value: 'kr-kr', name: 'Korea' },
-    { value: 'lv-lv', name: 'Latvia' },
-    { value: 'lt-lt', name: 'Lithuania' },
-    { value: 'my-en', name: 'Malaysia (en)' },
-    { value: 'mx-es', name: 'Mexico' },
-    { value: 'nl-nl', name: 'Netherlands' },
-    { value: 'nz-en', name: 'New Zealand' },
-    { value: 'no-no', name: 'Norway' },
-    { value: 'pk-en', name: 'Pakistan (en)' },
-    { value: 'pe-es', name: 'Peru' },
-    { value: 'ph-en', name: 'Philippines (en)' },
-    { value: 'pl-pl', name: 'Poland' },
-    { value: 'pt-pt', name: 'Portugal' },
-    { value: 'ro-ro', name: 'Romania' },
-    { value: 'ru-ru', name: 'Russia' },
-    { value: 'xa-ar', name: 'Saudi Arabia' },
-    { value: 'sg-en', name: 'Singapore' },
-    { value: 'sk-sk', name: 'Slovakia' },
-    { value: 'sl-sl', name: 'Slovenia' },
-    { value: 'za-en', name: 'South Africa' },
-    { value: 'es-ca', name: 'Spain (ca)' },
-    { value: 'es-es', name: 'Spain (es)' },
-    { value: 'se-sv', name: 'Sweden' },
-    { value: 'ch-de', name: 'Switzerland (de)' },
-    { value: 'ch-fr', name: 'Switzerland (fr)' },
-    { value: 'tw-tzh', name: 'Taiwan' },
-    { value: 'th-en', name: 'Thailand (en)' },
-    { value: 'tr-tr', name: 'Turkey' },
-    { value: 'us-en', name: 'US (English)' },
-    { value: 'us-es', name: 'US (Spanish)' },
-    { value: 'ua-uk', name: 'Ukraine' },
-    { value: 'uk-en', name: 'United Kingdom' },
-    { value: 'vn-en', name: 'Vietnam (en)' }
-];
-
-const TIMES = [
-    { value: '', name: 'Any Time' },
-    { value: 'd', name: 'Past Day' },
-    { value: 'w', name: 'Past Week' },
-    { value: 'm', name: 'Past Month' },
-    { value: 'y', name: 'Past Year' }
-];
+import { MODELSAI, REGIONS, TIMES } from '../constants/models';
 
 async function fetchAutocompleteSuggestions(query) {
     try {
@@ -110,12 +28,14 @@ function highlightMatch(text, query) {
     );
 }
 
-function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
+function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, searchHistory, setSearchHistory }) {
     const [input, setInput] = useState('');
     const [region, setRegion] = useState('');
     const [time, setTime] = useState('');
     const [suggestions, setSuggestions] = useState([]);
+    // eslint-disable-next-line no-unused-vars
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [showHistory, setShowHistory] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
@@ -125,6 +45,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
         const value = e.target.value;
         setInput(value);
         setShowSuggestions(true);
+        setShowHistory(true);
 
         if (value.trim()) {
             const newSuggestions = await fetchAutocompleteSuggestions(value);
@@ -139,6 +60,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
         const suggestionText = suggestion.phrase || suggestion;
         setInput(suggestionText);
         setShowSuggestions(false);
+        setShowHistory(false);
         setSuggestions([]);
         onSearch(suggestionText, region, time);
     };
@@ -160,6 +82,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
             setSelectedIndex(prev => prev > -1 ? prev - 1 : prev);
         } else if (e.key === 'Escape') {
             setShowSuggestions(false);
+            setShowHistory(false);
         }
     };
 
@@ -172,16 +95,45 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
         onSearch(input, region, time);
         setSuggestions([]);
         setShowSuggestions(false);
+        setShowHistory(false);
         setSelectedIndex(-1);
         setLoading(false);
     };
 
+    // Handle input focus to show search history
+    const handleInputFocus = () => {
+        if (!input.trim()) {
+            setShowSuggestions(true);
+            setShowHistory(true);
+        }
+    };
+
+    // Handle input blur to hide search history
+    const handleInputBlur = () => {
+        setTimeout(() => {
+            setShowSuggestions(false);
+            setShowHistory(false);
+        }, 200); // Delay to allow click events to register
+    };
+
+    // Handle remove search history item
+    const handleRemoveHistory = (index) => {
+        const newHistory = [...searchHistory];
+        newHistory[index] = 'Search deleted';
+        setSearchHistory(newHistory);
+        setTimeout(() => {
+            const updatedHistory = newHistory.filter((_, i) => i !== index);
+            setSearchHistory(updatedHistory);
+            localStorage.setItem('searchHistory', JSON.stringify(updatedHistory));
+        }, 2000); // 2 seconds delay for animation
+    };
+
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
-            {/* Models Selection */}
+            {/* MODELSAI Selection */}
             <div className="relative w-full mb-8">
                 <div className="flex gap-3 justify-center overflow-x-auto hide-scrollbar py-2">
-                    {MODELS.map((model) => (
+                    {MODELSAI.map((model) => (
                         <button
                             key={model.id}
                             onClick={() => onModelChange(model.id)}
@@ -229,6 +181,8 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
                         value={input}
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
+                        onFocus={handleInputFocus}
+                        onBlur={handleInputBlur}
                         className="w-full px-5 py-3 rounded-xl
                             bg-gray-800/50
                             border border-gray-700/50
@@ -278,13 +232,35 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange }) {
                 </div>
 
                 {/* Suggestions */}
-                {showSuggestions && suggestions.length > 0 && (
+                {showHistory && suggestions.length > 0 && (
                     <SuggestionsList
                         suggestions={suggestions}
                         selectedIndex={selectedIndex}
                         onSuggestionSelect={handleSuggestionClick}
                         onSuggestionHover={setSelectedIndex}
                     />
+                )}
+
+                {/* Search History */}
+                {showHistory && suggestions.length === 0 && (
+                    <div className="absolute w-full mt-2 py-1 rounded-xl bg-gray-800/95 border border-gray-700/50 shadow-lg backdrop-blur-sm z-50">
+                        {searchHistory.map((query, index) => (
+                            <div key={index} className="flex items-center justify-between px-4 py-2.5 text-left transition-colors duration-200 group">
+                                <div className="flex items-center gap-3">
+                                    <IconHistory size={16} className="text-gray-500" />
+                                    <span className="text-gray-300">{query}</span>
+                                </div>
+                                {query !== 'Search deleted' && (
+                                    <button
+                                        onClick={() => handleRemoveHistory(index)}
+                                        className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                                    >
+                                        <IconTrash size={16} />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
                 )}
             </form>
         </div>

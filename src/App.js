@@ -24,6 +24,9 @@ function App() {
   });
   const [nextPageLink, setNextPageLink] = useState(null);
   const [animationClass, setAnimationClass] = useState('');
+  const [searchHistory, setSearchHistory] = useState(() => {
+    return JSON.parse(localStorage.getItem('searchHistory')) || [];
+  });
 
   useEffect(() => {
     if (darkMode) {
@@ -39,6 +42,11 @@ function App() {
     setHasSearched(true);
     setLoading(true);
     setError(null);
+
+    // Save search query to history
+    const newHistory = [searchQuery, ...searchHistory.filter(q => q !== searchQuery)].slice(0, 10);
+    setSearchHistory(newHistory);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
 
     try {
       const encodedQuery = encodeURIComponent(searchQuery);
@@ -206,6 +214,8 @@ function App() {
                   hasSearched={hasSearched}
                   selectedModel={selectedModel}
                   onModelChange={setSelectedModel}
+                  searchHistory={searchHistory}
+                  setSearchHistory={setSearchHistory}
                 />
                 {hasSearched && (
                   <div className="mt-6">
