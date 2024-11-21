@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import AISearch from './components/AISearch';
-import { IconSun, IconMoon, IconDotsVertical, IconSearch, IconPhoto, IconVolume,IconDisabled2 } from '@tabler/icons-react';
+import { IconSun, IconMoon, IconDotsVertical, IconSearch, IconPhoto, IconVolume } from '@tabler/icons-react';
 import ImageGenerator from './components/ImageGenerator';
 import TextToSpeech from './components/TextToSpeech';
+import NavigationMenu from './components/NavigationMenu';
 
 import './App.css';
 
@@ -179,13 +180,21 @@ function App() {
     <div className={darkMode ? 'dark' : ''}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <header className={`p-4 flex justify-between items-center sticky top-0 z-50 ${hasSearched ? '' : ''}`}>
-          <div className="relative">
-            <button
-              onClick={() => setShowMenu(!showMenu)}
-              className="rounded-full p-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-            >
-              <IconDotsVertical size={24} />
-            </button>
+        <div className="relative">
+  <button
+    onClick={() => setShowMenu(!showMenu)}
+    className={`flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200
+      ${showMenu 
+        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+        : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+  >
+    {activeTab === 'search' && <IconSearch size={20} />}
+    {activeTab === 'image' && <IconPhoto size={20} />}
+    {activeTab === 'tts' && <IconVolume size={20} />}
+    <span className="font-medium">
+      {activeTab === 'search' ? 'Search' : activeTab === 'image' ? 'Image Generator' : 'Text to Speech'}
+    </span>
+  </button>
 
             {showMenu && (
               <div className="absolute left-0 mt-2 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 border dark:border-gray-700 overflow-hidden">
@@ -211,20 +220,13 @@ function App() {
                 </button>
                 <button
                   onClick={() => {
-                    if (ttsAvailable) {
-                      setActiveTab('tts');
-                      setShowMenu(false);
-                    }
+                    setActiveTab('tts');
+                    setShowMenu(false);
                   }}
-                  disabled={!ttsAvailable}
-                  className={`w-full px-4 py-2 text-left flex items-center gap-2 
-    ${activeTab === 'tts' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
-    ${!ttsAvailable ? 'opacity-50 cursor-not-allowed' : ''}
-  `}
+                  className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeTab === 'tts' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                 >
                   <IconVolume size={20} />
                   Text to Speech
-                  {!ttsAvailable && <span className="ml-auto text-xs text-gray-500"><IconDisabled2 size={15} /></span>}
                 </button>
               </div>
             )}
