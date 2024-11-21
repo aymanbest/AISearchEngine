@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import AISearch from './components/AISearch';
-import { IconSun, IconMoon, IconDotsVertical, IconSearch, IconPhoto, IconVolume } from '@tabler/icons-react';
+import { IconSun, IconMoon, IconDotsVertical, IconSearch, IconPhoto, IconVolume,IconDisabled2 } from '@tabler/icons-react';
 import ImageGenerator from './components/ImageGenerator';
 import TextToSpeech from './components/TextToSpeech';
 
@@ -35,6 +35,7 @@ function App() {
   });
   // eslint-disable-next-line
   const [hasAIResponse, setHasAIResponse] = useState(false);
+  const [ttsAvailable] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -58,99 +59,99 @@ function App() {
     localStorage.setItem('searchHistory', JSON.stringify(newHistory));
 
     try {
-        const encodedQuery = encodeURIComponent(searchQuery);
-        const url = nextPage ? nextPageLink : `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?q=${encodedQuery}&df=${time}&kl=${region}`;
-        const response = await fetch(url);
+      const encodedQuery = encodeURIComponent(searchQuery);
+      const url = nextPage ? nextPageLink : `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?q=${encodedQuery}&df=${time}&kl=${region}`;
+      const response = await fetch(url);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-        let rawHtml = await response.text();
-        if (rawHtml.startsWith('"') && rawHtml.endsWith('"')) {
-            rawHtml = rawHtml.slice(1, -1);
-        }
+      let rawHtml = await response.text();
+      if (rawHtml.startsWith('"') && rawHtml.endsWith('"')) {
+        rawHtml = rawHtml.slice(1, -1);
+      }
 
-        const decodedHtml = rawHtml.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(decodedHtml, 'text/html');
+      const decodedHtml = rawHtml.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(decodedHtml, 'text/html');
 
-        const resolveLink = (url) => {
-            try {
-                if (!url) throw new Error('Invalid URL');
-                const parsedUrl = new URL(url);
-                const queryParams = parsedUrl.search.slice(1).split('&');
-                for (const queryParam of queryParams) {
-                    const [key, value] = queryParam.split('=');
-                    if (key === 'uddg') {
-                        return decodeURIComponent(value);
-                    }
-                }
-            } catch (e) {
-                console.error('Error resolving URL:', e);
-                return ''; // Return an empty string or a default value when the URL is invalid
+      const resolveLink = (url) => {
+        try {
+          if (!url) throw new Error('Invalid URL');
+          const parsedUrl = new URL(url);
+          const queryParams = parsedUrl.search.slice(1).split('&');
+          for (const queryParam of queryParams) {
+            const [key, value] = queryParam.split('=');
+            if (key === 'uddg') {
+              return decodeURIComponent(value);
             }
-            return url;
+          }
+        } catch (e) {
+          console.error('Error resolving URL:', e);
+          return ''; // Return an empty string or a default value when the URL is invalid
+        }
+        return url;
+      };
+
+      const wikipediaDiv = doc.querySelector('.zci-wrapper');
+      const wikipediaResult = wikipediaDiv
+        ? {
+          wiki: true,
+          title: wikipediaDiv.querySelector('.zci__heading a')?.textContent?.trim() || 'Wikipedia',
+          link: resolveLink(wikipediaDiv.querySelector('.zci__heading a')?.href || ''),
+          image: wikipediaDiv.querySelector('.zci__image')?.src || null,
+          description:
+            wikipediaDiv
+              .querySelector('#zero_click_abstract')
+              ?.childNodes?.length > 0
+              ? Array.from(wikipediaDiv.querySelector('#zero_click_abstract').childNodes)
+                .filter((node) => node.nodeType === Node.TEXT_NODE)
+                .map((node) => node.textContent.trim())
+                .filter((text) => text)
+                .join(' ')
+              : 'No description available',
+        }
+        : null;
+
+      if (wikipediaResult) {
+        wikipediaResult.description = wikipediaResult.description
+          .replace(/\s+/g, ' ')
+          .replace(/\s+\./g, '.')
+          .trim();
+      }
+
+      const resultsDivs = doc.querySelectorAll('.results_links_deep');
+      const parsedResults = Array.from(resultsDivs).map((div) => {
+        const obfuscatedLink = div.querySelector('.result__a')?.href || '';
+        return {
+          wiki: false,
+          title: div.querySelector('.result__title')?.textContent?.replace(/\n/g, '').trim() || 'No title',
+          link: resolveLink(obfuscatedLink),
+          icon: div.querySelector('.result__icon__img')?.src || null,
+          description:
+            div.querySelector('.result__snippet')?.textContent?.replace(/\n/g, '').trim() || 'No description',
         };
+      });
 
-        const wikipediaDiv = doc.querySelector('.zci-wrapper');
-        const wikipediaResult = wikipediaDiv
-            ? {
-                wiki: true,
-                title: wikipediaDiv.querySelector('.zci__heading a')?.textContent?.trim() || 'Wikipedia',
-                link: resolveLink(wikipediaDiv.querySelector('.zci__heading a')?.href || ''),
-                image: wikipediaDiv.querySelector('.zci__image')?.src || null,
-                description:
-                    wikipediaDiv
-                        .querySelector('#zero_click_abstract')
-                        ?.childNodes?.length > 0
-                        ? Array.from(wikipediaDiv.querySelector('#zero_click_abstract').childNodes)
-                            .filter((node) => node.nodeType === Node.TEXT_NODE)
-                            .map((node) => node.textContent.trim())
-                            .filter((text) => text)
-                            .join(' ')
-                        : 'No description available',
-            }
-            : null;
+      const nextPageForm = doc.querySelector('.nav-link form');
+      if (nextPageForm) {
+        const nextPageParams = new URLSearchParams(new FormData(nextPageForm)).toString();
+        const nextPageUrl = `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?${nextPageParams}`;
+        setNextPageLink(nextPageUrl);
+      } else {
+        setNextPageLink(null);
+      }
 
-        if (wikipediaResult) {
-            wikipediaResult.description = wikipediaResult.description
-                .replace(/\s+/g, ' ')
-                .replace(/\s+\./g, '.')
-                .trim();
-        }
-
-        const resultsDivs = doc.querySelectorAll('.results_links_deep');
-        const parsedResults = Array.from(resultsDivs).map((div) => {
-            const obfuscatedLink = div.querySelector('.result__a')?.href || '';
-            return {
-                wiki: false,
-                title: div.querySelector('.result__title')?.textContent?.replace(/\n/g, '').trim() || 'No title',
-                link: resolveLink(obfuscatedLink),
-                icon: div.querySelector('.result__icon__img')?.src || null,
-                description:
-                    div.querySelector('.result__snippet')?.textContent?.replace(/\n/g, '').trim() || 'No description',
-            };
-        });
-
-        const nextPageForm = doc.querySelector('.nav-link form');
-        if (nextPageForm) {
-            const nextPageParams = new URLSearchParams(new FormData(nextPageForm)).toString();
-            const nextPageUrl = `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?${nextPageParams}`;
-            setNextPageLink(nextPageUrl);
-        } else {
-            setNextPageLink(null);
-        }
-
-        setResultsHistory(prevHistory => nextPage ? [...prevHistory, parsedResults] : [[...(wikipediaResult ? [wikipediaResult] : []), ...parsedResults]]);
-        setCurrentPageIndex(prevIndex => nextPage ? prevIndex + 1 : 0);
+      setResultsHistory(prevHistory => nextPage ? [...prevHistory, parsedResults] : [[...(wikipediaResult ? [wikipediaResult] : []), ...parsedResults]]);
+      setCurrentPageIndex(prevIndex => nextPage ? prevIndex + 1 : 0);
     } catch (err) {
-        console.error('Search error:', err);
-        setError('Failed to fetch search results');
+      console.error('Search error:', err);
+      setError('Failed to fetch search results');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   const handleNextPage = () => {
     setAnimationClass('opacity-0 transition-opacity duration-500');
@@ -210,13 +211,20 @@ function App() {
                 </button>
                 <button
                   onClick={() => {
-                    setActiveTab('tts');
-                    setShowMenu(false);
+                    if (ttsAvailable) {
+                      setActiveTab('tts');
+                      setShowMenu(false);
+                    }
                   }}
-                  className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeTab === 'tts' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                  disabled={!ttsAvailable}
+                  className={`w-full px-4 py-2 text-left flex items-center gap-2 
+    ${activeTab === 'tts' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
+    ${!ttsAvailable ? 'opacity-50 cursor-not-allowed' : ''}
+  `}
                 >
                   <IconVolume size={20} />
                   Text to Speech
+                  {!ttsAvailable && <span className="ml-auto text-xs text-gray-500"><IconDisabled2 size={15} /></span>}
                 </button>
               </div>
             )}
