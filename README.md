@@ -19,7 +19,7 @@ A modern search engine application built with React that combines web search res
   - Flux Realism
   - Flux Anime
   - and more ...
-- 🗣️ Text-to-Speech with:
+- 🗣️ Text-to-Speech with ( WORKS LOCALLY ONLY):
   - Alex (Male) voice
   - Sophia (Female) voice  
 - 🌗 Dark/Light mode support
