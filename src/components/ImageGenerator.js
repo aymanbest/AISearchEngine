@@ -158,7 +158,7 @@ function ImageGenerator() {
               <div className="px-2 pt-2 pb-2">
                 <div className="flex flex-col">
                   {MODELSIMAGE.map(({ id, name }) => (
-                    <a
+                    <button
                       key={id}
                       onClick={() => {
                         setModel(id);
@@ -170,7 +170,7 @@ function ImageGenerator() {
                       <div>
                         <p className="font-semibold">{name}</p>
                       </div>
-                    </a>
+                    </button>
                   ))}
                 </div>
               </div>

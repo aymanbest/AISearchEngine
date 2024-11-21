@@ -32,6 +32,7 @@ function App() {
   const [searchHistory, setSearchHistory] = useState(() => {
     return JSON.parse(localStorage.getItem('searchHistory')) || [];
   });
+  // eslint-disable-next-line
   const [hasAIResponse, setHasAIResponse] = useState(false);
 
   useEffect(() => {
