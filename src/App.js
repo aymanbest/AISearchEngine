@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import AISearch from './components/AISearch';
-import { IconSun, IconMoon, IconDotsVertical, IconSearch, IconPhoto } from '@tabler/icons-react';
+import { IconSun, IconMoon, IconDotsVertical, IconSearch, IconPhoto, IconVolume } from '@tabler/icons-react';
 import ImageGenerator from './components/ImageGenerator';
+import TextToSpeech from './components/TextToSpeech';
 
 import './App.css';
 
@@ -207,6 +208,16 @@ function App() {
                   <IconPhoto size={20} />
                   Image Generator
                 </button>
+                <button
+                  onClick={() => {
+                    setActiveTab('tts');
+                    setShowMenu(false);
+                  }}
+                  className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeTab === 'tts' ? 'bg-blue-50 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                >
+                  <IconVolume size={20} />
+                  Text to Speech
+                </button>
               </div>
             )}
           </div>
@@ -253,8 +264,10 @@ function App() {
                 </div>
               )}
             </div>
-          ) : (
+          ) : activeTab === 'image' ? (
             <ImageGenerator />
+          ) : (
+            <TextToSpeech />
           )}
         </main>
       </div>

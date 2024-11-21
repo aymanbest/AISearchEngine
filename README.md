@@ -19,6 +19,9 @@ A modern search engine application built with React that combines web search res
   - Flux Realism
   - Flux Anime
   - and more ...
+- 🗣️ Text-to-Speech with:
+  - Alex (Male) voice
+  - Sophia (Female) voice  
 - 🌗 Dark/Light mode support
 - 💡 Search suggestions with autocomplete
 - 📱 Responsive design
@@ -88,7 +91,8 @@ src/
   │   ├── ImageGenerator.js # AI image generation
   │   ├── SearchBar.js     # Search input and suggestions
   │   ├── SearchResults.js # Web search results display
-  │   └── SuggestionsList.js # Search suggestions
+  │   ├── SuggestionsList.js # Search suggestions
+  │   └── TextToSpeech.js    # Text To Speech
   ├── constants/
   │   └── models.js        # AI models and constants
   ├── App.js
@@ -100,3 +104,4 @@ src/
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ```
+
