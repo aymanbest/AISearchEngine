@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { IconVolume, IconLoader2, IconBrain, IconDownload, IconGenderFemme, IconGenderMale, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react';
+import axios from 'axios';
 
 function TextToSpeech() {
     const [text, setText] = useState('');
@@ -19,20 +20,20 @@ function TextToSpeech() {
         setLoading(true);
         setError(null);
         setAudioUrl(null);
-
+    
         try {
-            const response = await fetch(`${process.env.REACT_APP_AI_API_AIRFORCE}get-audio?text=${encodeURIComponent(text)}&voice=${voice}`, {
-                headers: {
-                    'origin': 'https://api.airforce',
-                    'Content-Type': 'audio/mpeg',
-                    'Access-Control-Allow-Origin': '*'
-                }
+            const response = await axios({
+                method: 'get',
+                url: `${process.env.REACT_APP_AI_API_AIRFORCE}get-audio`,
+                params: {
+                    text: text,
+                    voice: voice
+                },
+                responseType: 'blob',
+                withCredentials: false
             });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
+    
+            const url = URL.createObjectURL(response.data);
             setAudioUrl(url);
         } catch (err) {
             setError('Failed to convert text to speech');
