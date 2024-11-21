@@ -13,33 +13,6 @@ function TextToSpeech() {
     const [currentTime, setCurrentTime] = useState('0:00');
     const [totalDuration, setTotalDuration] = useState('0:00');
     const [progress, setProgress] = useState(0);
-    const [isDragging, setIsDragging] = useState(false);
-    const progressBarRef = useRef(null);
-
-    const handleMouseDown = (e) => {
-        setIsDragging(true);
-        updateTimeFromMouse(e);
-    };
-
-    const handleMouseMove = (e) => {
-        if (isDragging) {
-            updateTimeFromMouse(e);
-        }
-    };
-
-    const handleMouseUp = () => {
-        setIsDragging(false);
-    };
-
-    const updateTimeFromMouse = (e) => {
-        if (progressBarRef.current && audioRef.current) {
-            const bounds = progressBarRef.current.getBoundingClientRect();
-            const x = e.clientX - bounds.left;
-            const width = bounds.width;
-            const percentage = Math.min(Math.max(x / width, 0), 1);
-            audioRef.current.currentTime = percentage * audioRef.current.duration;
-        }
-    };
 
     const handleConvert = async (e) => {
         e.preventDefault();
