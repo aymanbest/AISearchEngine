@@ -109,11 +109,10 @@ export const MODELSIMAGE = [
     { id: 'playground-v2.5', name: 'Playground v2.5' },
     { id: 'flux-realism', name: 'Flux Realism' },
     // Airforce image models no worky
-    // { id: 'flux', name: 'Flux' },
-    // { id: 'flux-anime', name: 'Flux Anime' },
-    // { id: 'flux-3d', name: 'Flux 3D' },
-    // { id: 'flux-disney', name: 'Flux Disney' },
-    // { id: 'flux-pixel', name: 'Flux Pixel' },
-    // { id: 'flux-4o', name: 'Flux 4O' },
-    // { id: 'any-dark', name: 'Any Dark' }
+    { id: 'flux', name: 'Flux' },
+    { id: 'flux-anime', name: 'Flux Anime' },
+    { id: 'flux-3d', name: 'Flux 3D' },
+    { id: 'flux-disney', name: 'Flux Disney' },
+    { id: 'flux-pixel', name: 'Flux Pixel' },
+    { id: 'flux-4o', name: 'Flux 4O' },
 ];

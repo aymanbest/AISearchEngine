@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MODELSAI } from '../constants/models';
 
-async function startAISearch(query, setResultText, setLoadingMessage) {
+async function startAISearch(query, setResultText, setLoadingMessage, setHasAIResponse) {
   const eduideUrl = process.env.REACT_APP_AI_API_EDUIDE + 'v1/chat/completions';
   const airforceUrl = process.env.REACT_APP_AI_API_AIRFORCE + 'v1/chat/completions';
 
@@ -52,6 +52,7 @@ async function startAISearch(query, setResultText, setLoadingMessage) {
         const jsonResponse = await response.json();
         const resultText = jsonResponse.choices[0].message.content;
         setResultText(resultText);
+        setHasAIResponse(true);
         return;
       } else {
         const reader = response.body.getReader();
@@ -83,6 +84,7 @@ async function startAISearch(query, setResultText, setLoadingMessage) {
           const messages = chunk.split('\n').filter(line => line.startsWith('data:'));
           processMessages(messages);
         }
+        setHasAIResponse(true);
         return;
       }
     } catch (error) {
@@ -90,20 +92,22 @@ async function startAISearch(query, setResultText, setLoadingMessage) {
     }
   }
 
-  setResultText('Failed to get AI response from all models');
+  // setResultText('Failed to get AI response from all models');
 }
 
-function AISearch({ query }) {
+function AISearch({ query, setHasAIResponse }) {
   const [resultText, setResultText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessage, setLoadingMessage] = useState('Processing your query...');
+  const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
     if (query) {
       setIsLoading(true);
       setLoadingProgress(0);
       setLoadingMessage('Processing your query...');
+      setShowResult(false);
 
       const progressInterval = setInterval(() => {
         setLoadingProgress(prev => {
@@ -116,18 +120,20 @@ function AISearch({ query }) {
         setResultText(text);
         setLoadingProgress(100);
         setIsLoading(false);
-      }, setLoadingMessage);
+        setShowResult(true);
+      }, setLoadingMessage, setHasAIResponse);
 
       return () => clearInterval(progressInterval);
     }
-  }, [query]);
+  }, [query, setHasAIResponse]);
 
   return (
-    <div className="mt-6 relative">
+    <div className={`mt-6 relative transition-all duration-500 ${showResult ? 'max-h-screen' : 'max-h-0 overflow-hidden'}`}>
       <div className="rounded-xl overflow-hidden
           bg-white dark:bg-gray-800
           border border-gray-200 dark:border-gray-700
-          shadow-sm">
+          shadow-sm transition-opacity duration-500"
+          style={{ opacity: showResult ? 1 : 0 }}>
         
         {isLoading && (
           <div className="absolute inset-x-0 top-0 h-0.5 bg-gray-100 dark:bg-gray-700">
@@ -146,7 +152,7 @@ function AISearch({ query }) {
               {loadingMessage}
             </div>
           )}
-
+          <h2 className="text-xl font-bold mb-4">AI Reply:</h2>
           <div className={`prose dark:prose-invert max-w-none
               ${isLoading ? 'opacity-60' : 'opacity-100'}
               transition-opacity duration-300`}>

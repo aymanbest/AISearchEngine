@@ -32,6 +32,7 @@ function App() {
   const [searchHistory, setSearchHistory] = useState(() => {
     return JSON.parse(localStorage.getItem('searchHistory')) || [];
   });
+  const [hasAIResponse, setHasAIResponse] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -47,6 +48,7 @@ function App() {
     setHasSearched(true);
     setLoading(true);
     setError(null);
+    setHasAIResponse(false);
 
     // Save search query to history
     const newHistory = [searchQuery, ...searchHistory.filter(q => q !== searchQuery)].slice(0, 10);
@@ -173,7 +175,7 @@ function App() {
   return (
     <div className={darkMode ? 'dark' : ''}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        <header className={`p-4 flex justify-between items-center sticky top-0 bg-gray-50 dark:bg-gray-900 z-50 ${hasSearched ? '' : ''}`}>
+        <header className={`p-4 flex justify-between items-center sticky top-0 z-50 ${hasSearched ? '' : ''}`}>
           <div className="relative">
             <button
               onClick={() => setShowMenu(!showMenu)}
@@ -219,7 +221,7 @@ function App() {
         <main className={`container mx-auto px-4 transition-all duration-500 ease-in-out ${activeTab === 'search' && !hasSearched ? 'mt-[30vh]' : 'mt-4'}`}>
           {activeTab === 'search' ? (
             <div className="flex flex-col gap-6">
-              <div className="sticky top-0 z-50 bg-gray-50 dark:bg-gray-900 pt-4 pb-6">
+              <div className="sticky top-0 z-50  pt-4 pb-6">
                 <SearchBar
                   onSearch={handleSearch}
                   hasSearched={hasSearched}
@@ -233,6 +235,7 @@ function App() {
                   <div className="mt-6">
                     <AISearch
                       query={query}
+                      setHasAIResponse={setHasAIResponse}
                     />
                   </div>
                 )}

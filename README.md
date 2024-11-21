@@ -11,11 +11,14 @@ A modern search engine application built with React that combines web search res
   - Mixtral 8x7B
   - Claude 3 Haiku
   - Llama 3 70B
+  - and much more...
 - 🎨 AI Image Generation with models:
   - SDXL
   - Stable Diffusion 3
   - Playground v2.5
   - Flux Realism
+  - Flux Anime
+  - and more ...
 - 🌗 Dark/Light mode support
 - 💡 Search suggestions with autocomplete
 - 📱 Responsive design
@@ -86,6 +89,8 @@ src/
   │   ├── SearchBar.js     # Search input and suggestions
   │   ├── SearchResults.js # Web search results display
   │   └── SuggestionsList.js # Search suggestions
+  ├── constants/
+  │   └── models.js        # AI models and constants
   ├── App.js
   └── index.js
 ```
@@ -94,7 +99,4 @@ src/
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
 ```
