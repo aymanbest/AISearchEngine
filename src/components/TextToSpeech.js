@@ -21,7 +21,13 @@ function TextToSpeech() {
         setAudioUrl(null);
 
         try {
-            const response = await fetch(`${process.env.REACT_APP_AI_API_AIRFORCE}get-audio?text=${encodeURIComponent(text)}&voice=${voice}`);
+            const response = await fetch(`${process.env.REACT_APP_AI_API_AIRFORCE}get-audio?text=${encodeURIComponent(text)}&voice=${voice}`, {
+                headers: {
+                    'origin': 'https://api.airforce',
+                    'Content-Type': 'audio/mpeg',
+                    'Access-Control-Allow-Origin': '*'
+                }
+            });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
