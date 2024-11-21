@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { MODELSAI } from '../constants/models';
 
-async function startAISearch(query, setResultText, setLoadingMessage, model) {
+async function startAISearch(query, setResultText, setLoadingMessage) {
   const eduideUrl = process.env.REACT_APP_AI_API_EDUIDE + 'v1/chat/completions';
   const airforceUrl = process.env.REACT_APP_AI_API_AIRFORCE + 'v1/chat/completions';
-  const defaultModel = 'gpt-4o-mini';
 
   const fetchAIResponse = async (url, model, stream = true) => {
     const response = await fetch(url, {
@@ -29,102 +29,71 @@ async function startAISearch(query, setResultText, setLoadingMessage, model) {
     return response;
   };
 
-  try {
-    let response;
+  for (const model of MODELSAI) {
+    setLoadingMessage(`Trying model: ${model.name}...`);
     try {
-      response = await fetchAIResponse(eduideUrl, model);
-      console.log(`Using Eduide API with model: ${model}`);
-    } catch (error) {
-      if (error.message.includes('CORS')) {
-        console.error('CORS error occurred:', error);
-        setResultText('Failed to get AI response due to CORS error');
+      let response;
+      try {
+        response = await fetchAIResponse(eduideUrl, model.id);
+        console.log(`Using Eduide API with model: ${model.name}`);
+      } catch (error) {
+        if (error.message.includes('CORS')) {
+          console.error('CORS error occurred:', error);
+          setResultText('Failed to get AI response due to CORS error');
+          return;
+        }
+        console.warn('Eduide API failed, trying Airforce API...');
+        setLoadingMessage('Changing API endpoints and trying again...');
+        response = await fetchAIResponse(airforceUrl, model.id, false);
+        console.log(`Using Airforce API with model: ${model.name}`);
+      }
+
+      if (response.headers.get('content-type').includes('application/json')) {
+        const jsonResponse = await response.json();
+        const resultText = jsonResponse.choices[0].message.content;
+        setResultText(resultText);
+        return;
+      } else {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let resultText = '';
+
+        const processMessages = (messages) => {
+          messages.forEach(msg => {
+            const jsonData = msg.replace('data: ', '');
+            if (jsonData) {
+              try {
+                const parsedData = JSON.parse(jsonData);
+                if (parsedData.choices && parsedData.choices.length > 0) {
+                  resultText += parsedData.choices[0].delta.content || '';
+                  setResultText(resultText);
+                }
+              } catch (e) {
+                console.error('Error parsing JSON:', e);
+              }
+            }
+          });
+        };
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const messages = chunk.split('\n').filter(line => line.startsWith('data:'));
+          processMessages(messages);
+        }
         return;
       }
-      console.warn('Eduide API failed, trying Airforce API...');
-      setLoadingMessage('Changing API endpoints and trying again...');
-      response = await fetchAIResponse(airforceUrl, model, false);
-      console.log(`Using Airforce API with model: ${model}`);
-    }
-
-    if (response.headers.get('content-type').includes('application/json')) {
-      const jsonResponse = await response.json();
-      const resultText = jsonResponse.choices[0].message.content;
-      setResultText(resultText);
-    } else {
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let resultText = '';
-
-      const processMessages = (messages) => {
-        messages.forEach(msg => {
-          const jsonData = msg.replace('data: ', '');
-          if (jsonData) {
-            try {
-              const parsedData = JSON.parse(jsonData);
-              if (parsedData.choices && parsedData.choices.length > 0) {
-                resultText += parsedData.choices[0].delta.content || '';
-                setResultText(resultText);
-              }
-            } catch (e) {
-              console.error('Error parsing JSON:', e);
-            }
-          }
-        });
-      };
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const messages = chunk.split('\n').filter(line => line.startsWith('data:'));
-        processMessages(messages);
-      }
-    }
-  } catch (error) {
-    console.error('Both APIs failed, trying Eduide with default model...');
-    setLoadingMessage('Changing API endpoints and trying again...');
-    try {
-      const response = await fetchAIResponse(eduideUrl, defaultModel);
-      console.log(`Using Eduide API with default model: ${defaultModel}`);
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let resultText = '';
-
-      const processMessages = (messages) => {
-        messages.forEach(msg => {
-          const jsonData = msg.replace('data: ', '');
-          if (jsonData) {
-            try {
-              const parsedData = JSON.parse(jsonData);
-              if (parsedData.choices && parsedData.choices.length > 0) {
-                resultText += parsedData.choices[0].delta.content || '';
-                setResultText(resultText);
-              }
-            } catch (e) {
-              console.error('Error parsing JSON:', e);
-            }
-          }
-        });
-      };
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const messages = chunk.split('\n').filter(line => line.startsWith('data:'));
-        processMessages(messages);
-      }
     } catch (error) {
-      console.error('Error fetching AI response:', error);
-      setResultText('Failed to get AI response');
+      console.error(`Error with model ${model.name}:`, error);
     }
   }
+
+  setResultText('Failed to get AI response from all models');
 }
 
-function AISearch({ query, selectedModel, onModelChange }) {
+function AISearch({ query }) {
   const [resultText, setResultText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -147,11 +116,11 @@ function AISearch({ query, selectedModel, onModelChange }) {
         setResultText(text);
         setLoadingProgress(100);
         setIsLoading(false);
-      }, setLoadingMessage, selectedModel);
+      }, setLoadingMessage);
 
       return () => clearInterval(progressInterval);
     }
-  }, [query, selectedModel]);
+  }, [query]);
 
   return (
     <div className="mt-6 relative">

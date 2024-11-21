@@ -233,8 +233,6 @@ function App() {
                   <div className="mt-6">
                     <AISearch
                       query={query}
-                      selectedModel={selectedModel}
-                      onModelChange={setSelectedModel}
                     />
                   </div>
                 )}

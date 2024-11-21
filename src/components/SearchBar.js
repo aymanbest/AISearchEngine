@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
 import SuggestionsList from './SuggestionsList';
-import { IconSearch, IconBrain, IconHistory, IconTrash, IconChevronsRight, IconChevronsLeft } from '@tabler/icons-react';
+import { IconSearch, IconHistory, IconTrash } from '@tabler/icons-react';
 import '../index.css';
-import { MODELSAI, REGIONS, TIMES } from '../constants/models';
+import {REGIONS, TIMES } from '../constants/models';
 
 async function fetchAutocompleteSuggestions(query) {
     try {
@@ -37,7 +37,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
     const [loading, setLoading] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
     const inputRef = useRef(null);
-    const modelsContainerRef = useRef(null);
+    
 
     const handleInputChange = async (e) => {
         const value = e.target.value;
@@ -127,47 +127,9 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
         onSearchHistoryClick(query, region, time);
     };
 
-    const scrollModels = (direction) => {
-        if (modelsContainerRef.current) {
-            const scrollAmount = direction === 'left' ? -200 : 200;
-            modelsContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        }
-    };
 
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
-            <div className="relative w-full mb-8">
-                <button onClick={() => scrollModels('left')} className="absolute left-[-50px] top-1/2 transform -translate-y-1/2 z-10 p-2 hidden md:block">
-                    <IconChevronsLeft size={40} />
-                </button>
-                <div className="flex gap-4 justify-start overflow-x-auto hide-scrollbar py-3" ref={modelsContainerRef}>
-                    {MODELSAI.map((model) => (
-                        <button
-                            key={model.id}
-                            onClick={() => onModelChange(model.id)}
-                            className={`flex items-center gap-3 px-5 py-2 rounded-lg transition 
-            ${selectedModel === model.id
-                                    ? 'bg-blue-600 text-white shadow-md shadow-blue-300'
-                                    : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-300'
-                                }`}
-                        >
-                            <IconBrain
-                                size={20}
-                                className={`transition ${selectedModel === model.id
-                                    ? 'text-white'
-                                    : 'text-blue-500 dark:text-blue-400'
-                                    }`}
-                            />
-                            <span className="text-sm font-semibold">
-                                {model.name}
-                            </span>
-                        </button>
-                    ))}
-                </div>
-                <button onClick={() => scrollModels('right')} className="absolute right-[-50px] top-1/2 transform -translate-y-1/2 z-10 p-2 hidden md:block">
-                    <IconChevronsRight size={40} />
-                </button>
-            </div>
 
             <form onSubmit={handleSubmit} className="relative group space-y-4">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 
