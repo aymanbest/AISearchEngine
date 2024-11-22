@@ -128,42 +128,49 @@ function AISearch({ query, setHasAIResponse }) {
   }, [query, setHasAIResponse]);
 
   return (
-    <div className="relative">
-      <div className={`transition-all duration-500 ease-in-out transform
-        ${showResult ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}
-        ${isLoading ? 'min-h-[100px]' : ''}`}
+    <div className="mt-8">
+      <div className={`transform transition-all duration-500 ease-out
+        ${showResult ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
       >
-        <div className="rounded-xl overflow-hidden
-            bg-white dark:bg-gray-800
-            border border-gray-200 dark:border-gray-700
-            shadow-sm"
+        <div className="rounded-2xl overflow-hidden
+            bg-white dark:bg-gray-800/90
+            border-2 border-gray-200 dark:border-gray-700
+            shadow-lg hover:shadow-xl
+            transition-all duration-300"
         >
           {isLoading && (
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-              <div 
-                className="h-full bg-blue-500 transition-all duration-300"
-                style={{ 
-                  width: `${loadingProgress}%`,
-                  transition: 'width 0.3s ease-in-out'
-                }}
+            <div className="absolute inset-x-0 top-0 h-1 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 
+                animate-gradient-x" 
+                style={{ width: `${loadingProgress}%` }}
               />
             </div>
           )}
 
-          <div className="p-6">
+          <div className="p-8">
             {isLoading && (
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 
-                    rounded-full animate-spin" />
+              <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400 mb-6">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse" />
                 {loadingMessage}
               </div>
             )}
             
             <div className="relative">
-              <h2 className="text-xl font-bold mb-4">AI Reply:</h2>
-              <div className={`prose dark:prose-invert max-w-none
-                  transition-opacity duration-300
-                  ${isLoading ? 'opacity-60' : 'opacity-100'}`}
+              <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                <span className="bg-gradient-to-r from-blue-600 to-indigo-600 
+                  dark:from-blue-500 dark:to-indigo-500 
+                  bg-clip-text text-transparent">
+                  AI Response
+                </span>
+                <div className="h-px flex-1 bg-gradient-to-r from-blue-500/50 to-transparent" />
+              </h2>
+              <div className={`prose prose-lg dark:prose-invert max-w-none
+                  prose-headings:text-gray-800 dark:prose-headings:text-gray-200
+                  prose-p:text-gray-600 dark:prose-p:text-gray-300
+                  prose-strong:text-gray-800 dark:prose-strong:text-gray-200
+                  prose-code:text-blue-600 dark:prose-code:text-blue-400
+                  transition-all duration-300
+                  ${isLoading ? 'opacity-60 blur-[1px]' : 'opacity-100'}`}
               >
                 {resultText}
               </div>

@@ -132,11 +132,11 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
         <div className="max-w-4xl mx-auto px-4 relative">
 
             <form onSubmit={handleSubmit} className="relative group space-y-4">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 
-                    rounded-xl opacity-0 group-focus-within:opacity-100 blur-lg
-                    transition-all duration-500" />
-
-                <div className="relative">
+                <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 
+                        rounded-2xl opacity-0 group-hover:opacity-20 group-focus-within:opacity-30 
+                        blur-lg transition-all duration-500" />
+                    
                     <input
                         ref={inputRef}
                         type="text"
@@ -145,26 +145,31 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                         onKeyDown={handleKeyDown}
                         onFocus={handleInputFocus}
                         onBlur={handleInputBlur}
-                        className="w-full px-5 py-3 rounded-xl
-                            bg-gray-200 dark:bg-gray-800/50
-                            border border-gray-300 dark:border-gray-700/50
-                            focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20
+                        className="w-full px-6 py-4 rounded-2xl
+                            bg-white dark:bg-gray-800/90
+                            border-2 border-gray-200 dark:border-gray-700
+                            focus:border-blue-500 dark:focus:border-blue-500 
+                            focus:ring-4 focus:ring-blue-500/20
+                            shadow-md hover:shadow-lg
                             transition-all duration-300
-                            text-gray-900 dark:text-gray-200 placeholder:text-gray-500
+                            text-lg text-gray-900 dark:text-gray-200 
+                            placeholder:text-gray-500
                             relative z-10"
                         placeholder="Ask me anything..."
                     />
                     <button
                         type="submit"
-                        className="absolute right-2 top-1/2 -translate-y-1/2
-                            p-2 rounded-lg
-                            bg-blue-600 hover:bg-blue-500
+                        className="absolute right-3 top-1/2 -translate-y-1/2
+                            p-3 rounded-xl
+                            bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500
+                            shadow-lg hover:shadow-xl hover:shadow-blue-500/20
+                            transform hover:scale-105 active:scale-95
                             transition-all duration-300
                             z-10"
                         aria-label="Search"
                     >
                         {loading ? (
-                            <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                            <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
                             <IconSearch size={20} className="text-white" />
                         )}
@@ -173,7 +178,17 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
 
                 <div className="flex gap-4">
                     <select
-                        className="w-full px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700/50 text-gray-900 dark:text-gray-200 z-10"
+                        className="w-full px-4 py-3 rounded-xl
+                            bg-white dark:bg-gray-800/90
+                            border-2 border-gray-200 dark:border-gray-700
+                            hover:border-gray-300 dark:hover:border-gray-600
+                            focus:border-blue-500 dark:focus:border-blue-500
+                            focus:ring-4 focus:ring-blue-500/20
+                            shadow-md hover:shadow-lg
+                            transition-all duration-300
+                            text-gray-900 dark:text-gray-200 
+                            cursor-pointer
+                            z-10"
                         value={region}
                         onChange={(e) => setRegion(e.target.value)}
                     >
@@ -182,7 +197,17 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                         ))}
                     </select>
                     <select
-                        className="w-full px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700/50 text-gray-900 dark:text-gray-200 z-10"
+                        className="w-full px-4 py-3 rounded-xl
+                            bg-white dark:bg-gray-800/90
+                            border-2 border-gray-200 dark:border-gray-700
+                            hover:border-gray-300 dark:hover:border-gray-600
+                            focus:border-blue-500 dark:focus:border-blue-500
+                            focus:ring-4 focus:ring-blue-500/20
+                            shadow-md hover:shadow-lg
+                            transition-all duration-300
+                            text-gray-900 dark:text-gray-200 
+                            cursor-pointer
+                            z-10"
                         value={time}
                         onChange={(e) => setTime(e.target.value)}
                     >
