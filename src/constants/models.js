@@ -29,7 +29,6 @@ export const MODELSAI = [
 ];
 
 export const REGIONS = [
-    { value: '', name: 'All Regions' },
     { value: 'ar-es', name: 'Argentina' },
     { value: 'au-en', name: 'Australia' },
     { value: 'at-de', name: 'Austria' },
@@ -96,7 +95,6 @@ export const REGIONS = [
 ];
 
 export const TIMES = [
-    { value: '', name: 'Any Time' },
     { value: 'd', name: 'Past Day' },
     { value: 'w', name: 'Past Week' },
     { value: 'm', name: 'Past Month' },

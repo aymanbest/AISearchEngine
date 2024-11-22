@@ -81,35 +81,32 @@ function SearchResults({ results, onNextPage, onPreviousPage, currentPageIndex }
 
   return (
     <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-      <div className={`space-y-4 ${wikipediaResult ? 'md:col-span-2' : 'md:col-span-3'}`}>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 sticky top-0 
-                    bg-gray-50 dark:bg-gray-900 py-4 z-40">
+      <div className={`${wikipediaResult ? 'md:col-span-2' : 'md:col-span-3'}`}>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 py-4 bg-white dark:bg-gray-900 sticky top-0 z-40">
           Web Results
         </h2>
-        <div className="space-y-4">
-          {otherResults.map((result, index) => (
-            <ResultCard key={index} result={result} index={index} />
-          ))}
+        <div className="relative h-[calc(100vh-200px)]"> {/* Fixed height container */}
+          <div className="space-y-4 absolute inset-0 overflow-y-auto pr-4">
+            {otherResults.map((result, index) => (
+              <ResultCard key={index} result={result} index={index} />
+            ))}
+          </div>
         </div>
       </div>
-
+  
       {wikipediaResult && (
         <div className="md:col-span-1">
-          <div className="sticky top-[280px]">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 mb-4 
-                            bg-gray-50 dark:bg-gray-900 py-4">
-              Wikipedia
-            </h2>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white px-1 py-4 bg-white dark:bg-gray-900 sticky top-0 z-40">
+            Wikipedia
+          </h2>
+          <div className="sticky top-[68px]"> {/* Adjusted top position */}
             <ResultCard result={wikipediaResult} index={0} />
           </div>
         </div>
       )}
-
+  
       <div className="col-span-full flex justify-center mt-6">
         <div className="flex flex-col items-center">
-          {/* <span className="text-sm text-gray-700 dark:text-gray-400 mb-4">
-            Showing <span className="font-semibold text-gray-900 dark:text-white">{currentPageIndex + 1}</span> to <span className="font-semibold text-gray-900 dark:text-white">{results.length}</span> of <span className="font-semibold text-gray-900 dark:text-white">{results.length}</span> Entries
-          </span> */}
           <div className="inline-flex mt-2 xs:mt-0">
             {currentPageIndex > 0 && (
               <button

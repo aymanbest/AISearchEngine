@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import SuggestionsList from './SuggestionsList';
 import { IconSearch, IconHistory, IconTrash } from '@tabler/icons-react';
+import { IconDirectionsFilled, IconTimezone, IconDirectionSign, IconTimeline } from '@tabler/icons-react'; // Import necessary icons
 import '../index.css';
-import {REGIONS, TIMES } from '../constants/models';
+import { REGIONS, TIMES } from '../constants/models';
 
 async function fetchAutocompleteSuggestions(query) {
     try {
@@ -36,8 +37,9 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
     const [showHistory, setShowHistory] = useState(false);
     const [loading, setLoading] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
+    const [openRegion, setOpenRegion] = useState(false);
+    const [openTime, setOpenTime] = useState(false);
     const inputRef = useRef(null);
-    
 
     const handleInputChange = async (e) => {
         const value = e.target.value;
@@ -127,16 +129,106 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
         onSearchHistoryClick(query, region, time);
     };
 
-
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
-
             <form onSubmit={handleSubmit} className="relative group space-y-4">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 
                     rounded-xl opacity-0 group-focus-within:opacity-100 blur-lg
                     transition-all duration-500" />
 
-                <div className="relative">
+                <div className="flex space-x-4">
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setOpenRegion(!openRegion)}
+                            className="flex items-center justify-start w-40 py-2 mt-2 text-sm font-semibold text-left rounded-lg"
+                        >
+                            <IconDirectionsFilled size={15} className="mr-2" />
+                            <span>{region || 'All Regions'}</span>
+                            <svg
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                                className={`w-4 h-4 transition-transform duration-200 transform ${openRegion ? 'rotate-180' : 'rotate-0'}`}
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                ></path>
+                            </svg>
+                        </button>
+                        {openRegion && (
+                            <div className="absolute z-50 w-full mt-2 origin-top-right bg-white rounded-md shadow-lg dark:bg-gray-700 transition ease-out duration-100 transform opacity-100 scale-100 max-h-40 overflow-y-auto">
+                                <div className="px-2 pt-2 pb-2">
+                                    <div className="flex flex-col">
+                                        {REGIONS.map(({ value, name }) => (
+                                            <button
+                                                key={value}
+                                                onClick={() => {
+                                                    setRegion(name);
+                                                    setOpenRegion(false);
+                                                }}
+                                                className="flex flex-row items-center p-2 rounded-lg bg-transparent hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer"
+                                            >
+                                                <IconDirectionSign size={15} className="mr-2" />
+                                                <div>
+                                                    <p className="font-semibold">{name}</p>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setOpenTime(!openTime)}
+                            className="flex items-center justify-start w-40 py-2 mt-2 text-sm font-semibold text-left rounded-lg"
+                        >
+                            <IconTimezone size={15} className="mr-2" />
+                            <span>{time || 'Any Time'}</span>
+                            <svg
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                                className={`w-4 h-4 transition-transform duration-200 transform ${openTime ? 'rotate-180' : 'rotate-0'}`}
+                            >
+                                <path
+                                    fillRule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clipRule="evenodd"
+                                ></path>
+                            </svg>
+                        </button>
+                        {openTime && (
+                            <div className="absolute z-50 w-full mt-2 origin-top-right bg-white rounded-md shadow-lg dark:bg-gray-700 transition ease-out duration-100 transform opacity-100 scale-100">
+                                <div className="px-2 pt-2 pb-2">
+                                    <div className="flex flex-col">
+                                        {TIMES.map(({ value, name }) => (
+                                            <button
+                                                key={value}
+                                                onClick={() => {
+                                                    setTime(name);
+                                                    setOpenTime(false);
+                                                }}
+                                                className="flex flex-row items-center p-2 rounded-lg bg-transparent hover:bg-gray-200 dark:hover:bg-gray-800 cursor-pointer"
+                                            >
+                                                <IconTimeline size={15} className="mr-2" />
+                                                <div>
+                                                    <p className="font-semibold">{name}</p>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="relative mt-4">
                     <input
                         ref={inputRef}
                         type="text"
@@ -171,27 +263,6 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                     </button>
                 </div>
 
-                <div className="flex gap-4">
-                    <select
-                        className="w-full px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700/50 text-gray-900 dark:text-gray-200 z-10"
-                        value={region}
-                        onChange={(e) => setRegion(e.target.value)}
-                    >
-                        {REGIONS.map(({ value, name }) => (
-                            <option key={value} value={value}>{name}</option>
-                        ))}
-                    </select>
-                    <select
-                        className="w-full px-4 py-3 rounded-xl bg-gray-200 dark:bg-gray-800/50 border border-gray-300 dark:border-gray-700/50 text-gray-900 dark:text-gray-200 z-10"
-                        value={time}
-                        onChange={(e) => setTime(e.target.value)}
-                    >
-                        {TIMES.map(({ value, name }) => (
-                            <option key={value} value={value}>{name}</option>
-                        ))}
-                    </select>
-                </div>
-
                 {showHistory && suggestions.length > 0 && (
                     <SuggestionsList
                         suggestions={suggestions}
@@ -202,7 +273,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                 )}
 
                 {showHistory && suggestions.length === 0 && (
-                    <div className="absolute w-full mt-2 py-1 rounded-xl bg-gray-200 dark:bg-gray-800/95 border border-gray-300 dark:border-gray-700/50 shadow-lg backdrop-blur-sm z-50">
+                    <div className={`absolute w-full mt-2 py-1 rounded-xl bg-gray-200 dark:bg-gray-800/95 border border-gray-300 dark:border-gray-700/50 shadow-lg backdrop-blur-sm z-50 ${searchHistory.length === 0 ? 'invisible' : ''} `}>
                         {searchHistory.map((query, index) => (
                             <div
                                 key={index}
@@ -210,8 +281,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                                 onMouseEnter={() => handleHistoryMouseEnter(index)}
                                 onMouseLeave={handleHistoryMouseLeave}
                                 className={`flex items-center justify-between w-full px-4 py-2.5 text-left transition-colors duration-200 group
-                    ${selectedIndex === index ? 'bg-blue-100 dark:bg-blue-900' : ''}
-                `}
+                                    ${selectedIndex === index ? 'bg-blue-100 dark:bg-blue-900' : ''}`}
                             >
                                 <div className="flex items-center gap-3">
                                     <IconHistory size={16} className="text-gray-500" />
