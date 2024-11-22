@@ -178,25 +178,25 @@ function App() {
   return (
     <div className={darkMode ? 'dark' : ''}>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        <header className={`p-4 flex justify-between items-center sticky top-0 z-50 ${hasSearched ? '' : ''}`}>
-        <div className="relative">
-  <button
-    onClick={() => setShowMenu(!showMenu)}
-    className={`flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200
-      ${showMenu 
-        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-        : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
-  >
-    {activeTab === 'search' && <IconSearch size={20} />}
-    {activeTab === 'image' && <IconPhoto size={20} />}
-    {activeTab === 'tts' && <IconVolume size={20} />}
-    <span className="font-medium">
-      {activeTab === 'search' ? 'Search' : activeTab === 'image' ? 'Image Generator' : 'Text to Speech'}
-    </span>
-  </button>
+        <header className={`p-4 flex justify-between items-center sticky top-0 z-[60] bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm ${hasSearched ? 'border-b border-gray-200 dark:border-gray-800' : ''}`}>
+          <div className="relative z-[70]">
+            <button
+              onClick={() => setShowMenu(!showMenu)}
+              className={`flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200
+                ${showMenu 
+                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
+            >
+              {activeTab === 'search' && <IconSearch size={20} />}
+              {activeTab === 'image' && <IconPhoto size={20} />}
+              {activeTab === 'tts' && <IconVolume size={20} />}
+              <span className="font-medium">
+                {activeTab === 'search' ? 'Search' : activeTab === 'image' ? 'Image Generator' : 'Text to Speech'}
+              </span>
+            </button>
 
-  {showMenu && <NavigationMenu activeTab={activeTab} setActiveTab={setActiveTab} setShowMenu={setShowMenu} />}
-</div>
+            {showMenu && <NavigationMenu activeTab={activeTab} setActiveTab={setActiveTab} setShowMenu={setShowMenu} />}
+          </div>
 
           <button
             onClick={() => setDarkMode(!darkMode)}

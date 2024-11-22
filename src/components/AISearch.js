@@ -128,35 +128,46 @@ function AISearch({ query, setHasAIResponse }) {
   }, [query, setHasAIResponse]);
 
   return (
-    <div className={`mt-6 relative transition-all duration-500 ${showResult ? 'max-h-screen' : 'max-h-0 overflow-hidden'}`}>
-      <div className="rounded-xl overflow-hidden
-          bg-white dark:bg-gray-800
-          border border-gray-200 dark:border-gray-700
-          shadow-sm transition-opacity duration-500"
-          style={{ opacity: showResult ? 1 : 0 }}>
-        
-        {isLoading && (
-          <div className="absolute inset-x-0 top-0 h-0.5 bg-gray-100 dark:bg-gray-700">
-            <div 
-              className="h-full bg-blue-500 transition-all duration-300"
-              style={{ width: `${loadingProgress}%` }}
-            />
-          </div>
-        )}
-
-        <div className="p-6">
+    <div className="relative">
+      <div className={`transition-all duration-500 ease-in-out transform
+        ${showResult ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}
+        ${isLoading ? 'min-h-[100px]' : ''}`}
+      >
+        <div className="rounded-xl overflow-hidden
+            bg-white dark:bg-gray-800
+            border border-gray-200 dark:border-gray-700
+            shadow-sm"
+        >
           {isLoading && (
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 
-                  rounded-full animate-spin" />
-              {loadingMessage}
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+              <div 
+                className="h-full bg-blue-500 transition-all duration-300"
+                style={{ 
+                  width: `${loadingProgress}%`,
+                  transition: 'width 0.3s ease-in-out'
+                }}
+              />
             </div>
           )}
-          <h2 className="text-xl font-bold mb-4">AI Reply:</h2>
-          <div className={`prose dark:prose-invert max-w-none
-              ${isLoading ? 'opacity-60' : 'opacity-100'}
-              transition-opacity duration-300`}>
-            {resultText}
+
+          <div className="p-6">
+            {isLoading && (
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 
+                    rounded-full animate-spin" />
+                {loadingMessage}
+              </div>
+            )}
+            
+            <div className="relative">
+              <h2 className="text-xl font-bold mb-4">AI Reply:</h2>
+              <div className={`prose dark:prose-invert max-w-none
+                  transition-opacity duration-300
+                  ${isLoading ? 'opacity-60' : 'opacity-100'}`}
+              >
+                {resultText}
+              </div>
+            </div>
           </div>
         </div>
       </div>
