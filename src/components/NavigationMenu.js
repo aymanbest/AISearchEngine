@@ -19,7 +19,7 @@ function NavigationMenu({ activeTab, setActiveTab, setShowMenu }) {
       id: 'tts',
       icon: IconVolume,
       label: 'Text to Speech',
-      description: 'Convert text to natural speech'
+      description: 'Transform text into lifelike speech'
     }
   ];
 
