@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { IconVolume, IconLoader2, IconBrain, IconDownload, IconGenderFemme, IconGenderMale, IconPlayerPlay, IconPlayerPause } from '@tabler/icons-react';
-import axios from 'axios';
+// import axios from 'axios';
 
 function TextToSpeech() {
     const [text, setText] = useState('');
@@ -22,30 +22,31 @@ function TextToSpeech() {
         setAudioUrl(null);
     
         try {
-            const response = await axios({
-                method: 'get',
-                url: `${process.env.REACT_APP_AI_API_AIRFORCE}get-audio`,
-                params: {
-                    text: text,
-                    voice: voice
-                },
-                responseType: 'blob',
-                withCredentials: false,
+            const response = await fetch(`${process.env.REACT_APP_AI_API_AIRFORCE}get-audio?text=${encodeURIComponent(text)}&voice=${voice}`, {
+                method: 'GET',
                 headers: {
                     "Accept-Encoding": "gzip, deflate, br",
                     "Accept-Language": "en-US,en;q=0.9",
-                    Authorization: "Bearer missing api key",
-                    Origin: "https://llmplayground.net",
-                    Referer: "https://llmplayground.net/",
+                    "Authorization": "Bearer missing api key",
+                    "Origin": "https://llmplayground.net",
+                    "Referer": "https://llmplayground.net/",
                     "Sec-Fetch-Dest": "empty",
                     "Sec-Fetch-Mode": "cors",
                     "Sec-Fetch-Site": "same-origin",
                     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
                 }
             });
-    
-            const url = URL.createObjectURL(response.data);
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch audio');
+            }
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
             setAudioUrl(url);
+    
+            // const url = URL.createObjectURL(response.data);
+            // setAudioUrl(url);
         } catch (err) {
             setError('Failed to convert text to speech');
             console.error('Text-to-speech error:', err);
