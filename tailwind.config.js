@@ -65,11 +65,11 @@ module.exports = {
         'gradient-x': {
           '0%, 100%': {
             'background-size': '200% 200%',
-            'background-position': 'left center'
+            'background-position': '0% 50%'
           },
           '50%': {
             'background-size': '200% 200%',
-            'background-position': 'right center'
+            'background-position': '100% 50%'
           },
         },
         'fade-in': {
@@ -93,9 +93,9 @@ module.exports = {
         'spin-slow': 'spin-slow 3s linear infinite',
         'fade-in-down': 'fade-in-down 0.3s ease-out',
         'thinking-dots': 'thinking-dots 1.5s infinite',
-        'gradient-x': 'gradient-x 15s ease infinite',
+        'gradient-x': 'gradient-x 3s ease-in-out infinite',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'fade-in': 'fade-in 0.5s ease-out',
+        'fade-in': 'fade-in 0.5s ease-out forwards',
       }
     }
   },

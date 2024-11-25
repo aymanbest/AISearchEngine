@@ -128,49 +128,44 @@ function AISearch({ query, setHasAIResponse }) {
   }, [query, setHasAIResponse]);
 
   return (
-    <div className="relative">
-      <div className={`transition-all duration-500 ease-in-out transform
-        ${showResult ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}
-        ${isLoading ? 'min-h-[100px]' : ''}`}
-      >
-        <div className="rounded-xl overflow-hidden
-            bg-white dark:bg-gray-800
-            border border-gray-200 dark:border-gray-700
-            shadow-sm"
-        >
-          {isLoading && (
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gray-100 dark:bg-gray-700 overflow-hidden">
-              <div 
-                className="h-full bg-blue-500 transition-all duration-300"
-                style={{ 
-                  width: `${loadingProgress}%`,
-                  transition: 'width 0.3s ease-in-out'
-                }}
-              />
-            </div>
-          )}
-
-          <div className="p-6">
+    <div className="max-w-4xl mx-auto mt-8">
+      {showResult && (
+        <div className="rounded-2xl bg-white dark:bg-gray-800/50 
+          border border-gray-200/50 dark:border-gray-700/50
+          shadow-xl shadow-blue-500/10
+          overflow-hidden">
+          <div className="p-6 space-y-6">
             {isLoading && (
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 
-                    rounded-full animate-spin" />
-                {loadingMessage}
+              <div className="space-y-4">
+                <div className="h-1.5 overflow-hidden rounded-full 
+                  bg-gray-200 dark:bg-gray-700/50">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500
+                      animate-gradient-x"
+                    style={{
+                      width: `${loadingProgress}%`,
+                      transition: 'width 0.3s ease-in-out'
+                    }}
+                  />
+                </div>
+
+                <div className="flex items-center gap-3 animate-pulse">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500" />
+                  <div className="text-gray-500 dark:text-gray-400">
+                    {loadingMessage}
+                  </div>
+                </div>
               </div>
             )}
-            
-            <div className="relative">
-              <h2 className="text-xl font-bold mb-4">AI Reply:</h2>
-              <div className={`prose dark:prose-invert max-w-none
-                  transition-opacity duration-300
-                  ${isLoading ? 'opacity-60' : 'opacity-100'}`}
-              >
+
+            <div className="space-y-4 animate-fade-in">
+              <div className="prose prose-blue dark:prose-invert max-w-none">
                 {resultText}
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -7,19 +7,22 @@ function NavigationMenu({ activeTab, setActiveTab, setShowMenu }) {
       id: 'search',
       icon: IconSearch,
       label: 'Search',
-      description: 'Search the web with AI assistance'
+      description: 'Search the web with AI assistance',
+      disabled: false
     },
     {
       id: 'image',
       icon: IconPhoto,
       label: 'Image Generator',
-      description: 'Create AI-generated images'
+      description: 'Create AI-generated images',
+      disabled: false
     },
     {
       id: 'tts',
       icon: IconVolume,
       label: 'Text to Speech',
-      description: 'Transform text into lifelike speech'
+      description: 'Transform text into lifelike speech',
+      disabled: true // Only works Locally CORS problem
     }
   ];
 
@@ -30,13 +33,17 @@ function NavigationMenu({ activeTab, setActiveTab, setShowMenu }) {
           <button
             key={item.id}
             onClick={() => {
-              setActiveTab(item.id);
-              setShowMenu(false);
+              if (!item.disabled) {
+                setActiveTab(item.id);
+                setShowMenu(false);
+              }
             }}
             className={`w-full px-4 py-3 flex items-center gap-4 rounded-xl transition-all duration-200 group
               ${activeTab === item.id 
                 ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
-                : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'}`}
+                : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'}
+              ${item.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+            disabled={item.disabled}
           >
             <div className={`p-2 rounded-lg ${activeTab === item.id 
               ? 'bg-blue-100 dark:bg-blue-800' 
@@ -59,4 +66,4 @@ function NavigationMenu({ activeTab, setActiveTab, setShowMenu }) {
   );
 }
 
-export default NavigationMenu; 
+export default NavigationMenu;

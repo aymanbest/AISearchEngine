@@ -6,7 +6,7 @@ import { IconSun, IconMoon, IconSearch, IconPhoto, IconVolume } from '@tabler/ic
 import ImageGenerator from './components/ImageGenerator';
 import TextToSpeech from './components/TextToSpeech';
 import NavigationMenu from './components/NavigationMenu';
-
+import ResultCard from './components/ResultCard';
 import './App.css';
 
 function App() {
@@ -46,6 +46,21 @@ function App() {
     localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
 
+  const WikipediaResult = ({ results }) => {
+    const wikipediaResult = results?.find(result => result.wiki === true);
+
+    if (!wikipediaResult) return null;
+
+    return (
+      <div className="space-y-4 mb-6">
+        <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100">
+          Wikipedia
+        </h2>
+        <ResultCard result={wikipediaResult} index={0} />
+      </div>
+    );
+  };
+
   const handleSearch = async (searchQuery, region = '', time = '', nextPage = false) => {
     setQuery(searchQuery);
     setHasSearched(true);
@@ -59,99 +74,99 @@ function App() {
     localStorage.setItem('searchHistory', JSON.stringify(newHistory));
 
     try {
-        const encodedQuery = encodeURIComponent(searchQuery);
-        const url = nextPage ? nextPageLink : `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?q=${encodedQuery}&df=${time}&kl=${region}`;
-        const response = await fetch(url);
+      const encodedQuery = encodeURIComponent(searchQuery);
+      const url = nextPage ? nextPageLink : `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?q=${encodedQuery}&df=${time}&kl=${region}`;
+      const response = await fetch(url);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-        let rawHtml = await response.text();
-        if (rawHtml.startsWith('"') && rawHtml.endsWith('"')) {
-            rawHtml = rawHtml.slice(1, -1);
-        }
+      let rawHtml = await response.text();
+      if (rawHtml.startsWith('"') && rawHtml.endsWith('"')) {
+        rawHtml = rawHtml.slice(1, -1);
+      }
 
-        const decodedHtml = rawHtml.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(decodedHtml, 'text/html');
+      const decodedHtml = rawHtml.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(decodedHtml, 'text/html');
 
-        const resolveLink = (url) => {
-            try {
-                if (!url) throw new Error('Invalid URL');
-                const parsedUrl = new URL(url);
-                const queryParams = parsedUrl.search.slice(1).split('&');
-                for (const queryParam of queryParams) {
-                    const [key, value] = queryParam.split('=');
-                    if (key === 'uddg') {
-                        return decodeURIComponent(value);
-                    }
-                }
-            } catch (e) {
-                console.error('Error resolving URL:', e);
-                return ''; // Return an empty string or a default value when the URL is invalid
+      const resolveLink = (url) => {
+        try {
+          if (!url) throw new Error('Invalid URL');
+          const parsedUrl = new URL(url);
+          const queryParams = parsedUrl.search.slice(1).split('&');
+          for (const queryParam of queryParams) {
+            const [key, value] = queryParam.split('=');
+            if (key === 'uddg') {
+              return decodeURIComponent(value);
             }
-            return url;
+          }
+        } catch (e) {
+          console.error('Error resolving URL:', e);
+          return ''; // Return an empty string or a default value when the URL is invalid
+        }
+        return url;
+      };
+
+      const wikipediaDiv = doc.querySelector('.zci-wrapper');
+      const wikipediaResult = wikipediaDiv
+        ? {
+          wiki: true,
+          title: wikipediaDiv.querySelector('.zci__heading a')?.textContent?.trim() || 'Wikipedia',
+          link: resolveLink(wikipediaDiv.querySelector('.zci__heading a')?.href || ''),
+          image: wikipediaDiv.querySelector('.zci__image')?.src || null,
+          description:
+            wikipediaDiv
+              .querySelector('#zero_click_abstract')
+              ?.childNodes?.length > 0
+              ? Array.from(wikipediaDiv.querySelector('#zero_click_abstract').childNodes)
+                .filter((node) => node.nodeType === Node.TEXT_NODE)
+                .map((node) => node.textContent.trim())
+                .filter((text) => text)
+                .join(' ')
+              : 'No description available',
+        }
+        : null;
+
+      if (wikipediaResult) {
+        wikipediaResult.description = wikipediaResult.description
+          .replace(/\s+/g, ' ')
+          .replace(/\s+\./g, '.')
+          .trim();
+      }
+
+      const resultsDivs = doc.querySelectorAll('.results_links_deep');
+      const parsedResults = Array.from(resultsDivs).map((div) => {
+        const obfuscatedLink = div.querySelector('.result__a')?.href || '';
+        return {
+          wiki: false,
+          title: div.querySelector('.result__title')?.textContent?.replace(/\n/g, '').trim() || 'No title',
+          link: resolveLink(obfuscatedLink),
+          icon: div.querySelector('.result__icon__img')?.src || null,
+          description:
+            div.querySelector('.result__snippet')?.textContent?.replace(/\n/g, '').trim() || 'No description',
         };
+      });
 
-        const wikipediaDiv = doc.querySelector('.zci-wrapper');
-        const wikipediaResult = wikipediaDiv
-            ? {
-                wiki: true,
-                title: wikipediaDiv.querySelector('.zci__heading a')?.textContent?.trim() || 'Wikipedia',
-                link: resolveLink(wikipediaDiv.querySelector('.zci__heading a')?.href || ''),
-                image: wikipediaDiv.querySelector('.zci__image')?.src || null,
-                description:
-                    wikipediaDiv
-                        .querySelector('#zero_click_abstract')
-                        ?.childNodes?.length > 0
-                        ? Array.from(wikipediaDiv.querySelector('#zero_click_abstract').childNodes)
-                            .filter((node) => node.nodeType === Node.TEXT_NODE)
-                            .map((node) => node.textContent.trim())
-                            .filter((text) => text)
-                            .join(' ')
-                        : 'No description available',
-            }
-            : null;
+      const nextPageForm = doc.querySelector('.nav-link form');
+      if (nextPageForm) {
+        const nextPageParams = new URLSearchParams(new FormData(nextPageForm)).toString();
+        const nextPageUrl = `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?${nextPageParams}`;
+        setNextPageLink(nextPageUrl);
+      } else {
+        setNextPageLink(null);
+      }
 
-        if (wikipediaResult) {
-            wikipediaResult.description = wikipediaResult.description
-                .replace(/\s+/g, ' ')
-                .replace(/\s+\./g, '.')
-                .trim();
-        }
-
-        const resultsDivs = doc.querySelectorAll('.results_links_deep');
-        const parsedResults = Array.from(resultsDivs).map((div) => {
-            const obfuscatedLink = div.querySelector('.result__a')?.href || '';
-            return {
-                wiki: false,
-                title: div.querySelector('.result__title')?.textContent?.replace(/\n/g, '').trim() || 'No title',
-                link: resolveLink(obfuscatedLink),
-                icon: div.querySelector('.result__icon__img')?.src || null,
-                description:
-                    div.querySelector('.result__snippet')?.textContent?.replace(/\n/g, '').trim() || 'No description',
-            };
-        });
-
-        const nextPageForm = doc.querySelector('.nav-link form');
-        if (nextPageForm) {
-            const nextPageParams = new URLSearchParams(new FormData(nextPageForm)).toString();
-            const nextPageUrl = `${process.env.REACT_APP_CORS_PROXY_URL}?endpoint=https://html.duckduckgo.com/html/?${nextPageParams}`;
-            setNextPageLink(nextPageUrl);
-        } else {
-            setNextPageLink(null);
-        }
-
-        setResultsHistory(prevHistory => nextPage ? [...prevHistory, parsedResults] : [[...(wikipediaResult ? [wikipediaResult] : []), ...parsedResults]]);
-        setCurrentPageIndex(prevIndex => nextPage ? prevIndex + 1 : 0);
+      setResultsHistory(prevHistory => nextPage ? [...prevHistory, parsedResults] : [[...(wikipediaResult ? [wikipediaResult] : []), ...parsedResults]]);
+      setCurrentPageIndex(prevIndex => nextPage ? prevIndex + 1 : 0);
     } catch (err) {
-        console.error('Search error:', err);
-        setError('Failed to fetch search results');
+      console.error('Search error:', err);
+      setError('Failed to fetch search results');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   const handleNextPage = () => {
     setAnimationClass('opacity-0 transition-opacity duration-500');
@@ -177,14 +192,14 @@ function App() {
 
   return (
     <div className={darkMode ? 'dark' : ''} >
-      <div className="min-h-screen  bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <header className={`p-4 flex justify-between items-center sticky top-0 z-[60] bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm`}>
           <div className="relative z-[70]">
             <button
               onClick={() => setShowMenu(!showMenu)}
               className={`flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200
-                ${showMenu 
-                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+                ${showMenu
+                  ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                   : 'hover:bg-gray-100 dark:hover:bg-gray-800'}`}
             >
               {activeTab === 'search' && <IconSearch size={20} />}
@@ -206,10 +221,11 @@ function App() {
           </button>
         </header>
 
-        <main className={`container mx-auto px-4 transition-all duration-500 ease-in-out ${activeTab === 'search' && !hasSearched ? 'mt-[30vh]' : 'mt-4'}`}>
+        <main className={`container mx-auto px-4 transition-all duration-500 ease-in-out ${activeTab === 'search' && !hasSearched ? 'mt-[20vh] lg:mt-[30vh]' : 'mt-4'}`}>
           {activeTab === 'search' ? (
-            <div className="flex flex-col gap-6">
-              <div className="sticky top-0 z-50 pt-4 pb-6">
+            <div className="flex flex-col space-y-6">
+              {/* Search Bar - Centered */}
+              <div className="w-full max-w-4xl mx-auto">
                 <SearchBar
                   onSearch={handleSearch}
                   hasSearched={hasSearched}
@@ -219,24 +235,37 @@ function App() {
                   setSearchHistory={setSearchHistory}
                   onSearchHistoryClick={(query, region, time) => handleSearch(query, region, time)}
                 />
-                {hasSearched && (
-                  <div className="mt-6">
-                    <AISearch
-                      query={query}
-                      setHasAIResponse={setHasAIResponse}
-                    />
-                  </div>
-                )}
               </div>
 
-              {hasSearched && resultsHistory[currentPageIndex] && (
-                <div className={`relative ${animationClass}`}>
-                  <SearchResults
-                    results={resultsHistory[currentPageIndex]}
-                    onNextPage={handleNextPage}
-                    onPreviousPage={handlePreviousPage}
-                    currentPageIndex={currentPageIndex}
-                  />
+              {/* Results Section */}
+              {hasSearched && (
+                <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mx-auto">
+                  {/* Left Sidebar - Wikipedia & AI */}
+                  <div className="w-full lg:w-80 lg:shrink-0 order-1 lg:order-1">
+                    <div className="lg:sticky lg:top-20 space-y-6">
+                      {resultsHistory[currentPageIndex] && (
+                        <WikipediaResult results={resultsHistory[currentPageIndex]} />
+                      )}
+                      <AISearch
+                        query={query}
+                        setHasAIResponse={setHasAIResponse}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Main Content - Web Results */}
+                  <div className="flex-1 order-1 lg:order-2">
+                    {resultsHistory[currentPageIndex] && (
+                      <div className={`relative ${animationClass}`}>
+                        <SearchResults
+                          results={resultsHistory[currentPageIndex]}
+                          onNextPage={handleNextPage}
+                          onPreviousPage={handlePreviousPage}
+                          currentPageIndex={currentPageIndex}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
