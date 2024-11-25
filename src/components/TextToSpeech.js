@@ -30,7 +30,18 @@ function TextToSpeech() {
                     voice: voice
                 },
                 responseType: 'blob',
-                withCredentials: false
+                withCredentials: false,
+                headers: {
+                    "Accept-Encoding": "gzip, deflate, br",
+                    "Accept-Language": "en-US,en;q=0.9",
+                    Authorization: "Bearer missing api key",
+                    Origin: "https://llmplayground.net",
+                    Referer: "https://llmplayground.net/",
+                    "Sec-Fetch-Dest": "empty",
+                    "Sec-Fetch-Mode": "cors",
+                    "Sec-Fetch-Site": "same-origin",
+                    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+                }
             });
     
             const url = URL.createObjectURL(response.data);
