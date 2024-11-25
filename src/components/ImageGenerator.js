@@ -83,7 +83,7 @@ function ImageGenerator() {
         }
       }
     } catch (err) {
-      setError('Error generating image');
+      setError('Error generating the image. Trying a different model might help.');
       console.error('Image generation error:', err);
     } finally {
       setLoading(false);
