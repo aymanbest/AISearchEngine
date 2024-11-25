@@ -99,10 +99,12 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
         }
     };
 
-    const handleInputBlur = () => {
-        setTimeout(() => {
-            setShowHistory(false);
-        }, 200);
+    const handleInputBlur = (e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+            setTimeout(() => {
+                setShowHistory(false);
+            }, 200);
+        }
     };
 
     const handleRemoveHistory = (index) => {
@@ -131,7 +133,7 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
 
     return (
         <div className="max-w-4xl mx-auto px-4 relative">
-            <form onSubmit={handleSubmit} className="relative group space-y-4">
+            <form onSubmit={handleSubmit} className="relative group space-y-4" onBlur={handleInputBlur}>
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 
                     rounded-xl opacity-0 group-focus-within:opacity-100 blur-lg
                     transition-all duration-500" />
@@ -236,7 +238,6 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                         onChange={handleInputChange}
                         onKeyDown={handleKeyDown}
                         onFocus={handleInputFocus}
-                        onBlur={handleInputBlur}
                         className="w-full px-5 py-3 rounded-xl
                             bg-gray-200 dark:bg-gray-800/50
                             border border-gray-300 dark:border-gray-700/50
@@ -248,10 +249,12 @@ function SearchBar({ onSearch, hasSearched, selectedModel, onModelChange, search
                     />
                     <button
                         type="submit"
+                        disabled={loading || !input.trim()}
                         className="absolute right-2 top-1/2 -translate-y-1/2
                             p-2 rounded-lg
-                            bg-blue-600 hover:bg-blue-500
-                            transition-all duration-300
+                            bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700
+                            transition-all duration-300 transform hover:scale-105
+                            disabled:hover:scale-100 disabled:opacity-50
                             z-10"
                         aria-label="Search"
                     >

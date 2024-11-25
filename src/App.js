@@ -36,6 +36,7 @@ function App() {
   });
   // eslint-disable-next-line
   const [hasAIResponse, setHasAIResponse] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -168,16 +169,18 @@ function App() {
     }
   };
 
-  const handleNextPage = () => {
-    setAnimationClass('opacity-0 transition-opacity duration-500');
-    setTimeout(() => {
-      if (currentPageIndex < resultsHistory.length - 1) {
-        setCurrentPageIndex(currentPageIndex + 1);
-      } else {
-        handleSearch(query, null, null, true);
-      }
-      setAnimationClass('opacity-100 transition-opacity duration-500');
-    }, 500);
+  const handleNextPage = async () => {
+    if (currentPageIndex < resultsHistory.length - 1) {
+      setCurrentPageIndex(currentPageIndex + 1);
+    } else {
+      setIsLoading(true);
+      setAnimationClass('opacity-0 transition-opacity duration-500');
+      setTimeout(async () => {
+        await handleSearch(query, null, null, true);
+        setAnimationClass('opacity-100 transition-opacity duration-500');
+        setIsLoading(false);
+      }, 500);
+    }
   };
 
   const handlePreviousPage = () => {
@@ -262,6 +265,7 @@ function App() {
                           onNextPage={handleNextPage}
                           onPreviousPage={handlePreviousPage}
                           currentPageIndex={currentPageIndex}
+                          isLoading={isLoading}
                         />
                       </div>
                     )}

@@ -2,7 +2,7 @@ import React from 'react';
 import { IconChevronsLeft, IconChevronsRight } from '@tabler/icons-react';
 import ResultCard from './ResultCard';
 
-function SearchResults({ results, onNextPage, onPreviousPage, currentPageIndex }) {
+function SearchResults({ results, onNextPage, onPreviousPage, currentPageIndex, isLoading }) {
   const newres = results.filter(result => !result.link.includes('ad_domain='));
   const otherResults = newres.filter(result => !result.wiki);
 
@@ -13,11 +13,17 @@ function SearchResults({ results, onNextPage, onPreviousPage, currentPageIndex }
           Web Results
         </h2>
         <div className="relative overflow-hidden rounded-2xl">
-          <div className="space-y-6">
-            {otherResults.map((result, index) => (
-              <ResultCard key={index} result={result} index={index} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent border-t-4 border-t-blue-500 rounded-full animate-spin"></div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {otherResults.map((result, index) => (
+                <ResultCard key={index} result={result} index={index} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
