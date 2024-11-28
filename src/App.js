@@ -196,7 +196,7 @@ function App() {
   return (
     <div className={darkMode ? 'dark' : ''} >
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        <header className={`p-4 flex justify-between items-center sticky top-0 z-[60] bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-sm`}>
+        <header className={`p-4 flex justify-between items-center sticky top-0 z-[60] backdrop-blur-sm`}>
           <div className="relative z-[70]">
             <button
               onClick={() => setShowMenu(!showMenu)}
