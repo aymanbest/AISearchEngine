@@ -55,32 +55,19 @@ function ImageGenerator() {
     setImageUrl(null);
 
     try {
-      let response;
-      if (model.startsWith('flux')) {
-        const url = `${process.env.REACT_APP_AI_API_AIRFORCE}v1/imagine2?prompt=${encodeURIComponent(prompt)}&size=1:1&seed=${Math.floor(Math.random() * 1000000)}&model=${model}`;
-        response = await fetch(url);
-        if (response.ok) {
-          const blob = await response.blob();
-          const imageUrl = URL.createObjectURL(blob);
-          setImageUrl(imageUrl);
-        } else {
-          setError('Failed to generate image');
-        }
-      } else {
-        response = await fetch(process.env.REACT_APP_AI_API_EDUIDE + 'v1/imagine', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ prompt, model })
-        });
+      const response = await fetch(process.env.REACT_APP_AI_API_EDUIDE + 'v1/imagine', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ prompt, model })
+      });
 
-        const data = await response.json();
-        if (data.data && data.data[0]?.url) {
-          setImageUrl(data.data[0].url);
-        } else {
-          setError('Failed to generate image');
-        }
+      const data = await response.json();
+      if (data.data && data.data[0]?.url) {
+        setImageUrl(data.data[0].url);
+      } else {
+        setError('Failed to generate image');
       }
     } catch (err) {
       setError('Error generating the image. Trying a different model might help.');
