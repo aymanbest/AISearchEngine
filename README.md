@@ -1,4 +1,4 @@
-# AI-Powered Search Engine
+# Smart Seek: AI-Powered Search Engine
 
 A modern search engine application built with React that combines web search results with AI-powered answers and image generation capabilities.
 
