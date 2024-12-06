@@ -158,30 +158,36 @@ function Chat() {
 
       {/* Chat Messages Container */}
       <div className="flex-1 overflow-y-auto mb-4 space-y-4 rounded-xl bg-white/50 dark:bg-gray-800/30 
-        border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm p-6">
+        border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm p-3 sm:p-6">
         {messages.map((msg, idx) => (
-          <div key={idx} className={`flex items-end gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+          <div key={idx} className={`flex items-end gap-2 sm:gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
             {/* Avatar */}
-            <div className={`flex-shrink-0 w-8 h-8 rounded-full shadow-lg flex items-center justify-center 
+            <div className={`flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 rounded-full shadow-lg flex items-center justify-center 
               ${msg.role === 'user'
                 ? 'bg-gradient-to-br from-blue-500 to-blue-600'
                 : 'bg-gradient-to-br from-gray-600 to-gray-700'}`}>
               {msg.role === 'user' ? (
-                <IconUser size={18} className="text-white" />
+                <>
+                  <IconUser size={16} className="text-white sm:hidden" />
+                  <IconUser size={18} className="text-white hidden sm:block" />
+                </>
               ) : (
-                <IconRobot size={18} className="text-white" />
+                <>
+                  <IconRobot size={16} className="text-white sm:hidden" />
+                  <IconRobot size={18} className="text-white hidden sm:block" />
+                </>
               )}
             </div>
 
             {/* Message Content */}
-            <div className="group relative max-w-[80%]">
+            <div className="group relative max-w-[85%] sm:max-w-[80%]">
               {editingMessageId === idx ? (
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     value={editingContent}
                     onChange={(e) => setEditingContent(e.target.value)}
-                    className="flex-1 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700
+                    className="flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base rounded-xl border border-gray-200 dark:border-gray-700
                       bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500/20"
                   />
                   <button
@@ -189,7 +195,8 @@ function Chat() {
                     className="p-2 rounded-xl bg-green-500 text-white hover:bg-green-600 
                       transition-all duration-200 hover:shadow-lg hover:shadow-green-500/20"
                   >
-                    <IconCheck size={18} />
+                    <IconCheck size={16} className="sm:hidden" />
+                    <IconCheck size={18} className="hidden sm:block" />
                   </button>
                 </div>
               ) : (
