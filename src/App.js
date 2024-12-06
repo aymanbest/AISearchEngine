@@ -208,14 +208,17 @@ function App() {
             >
               {activeTab === 'search' && <IconSearch size={20} />}
               {activeTab === 'image' && <IconPhoto size={20} />}
+              {activeTab === 'chat' && <IconMessage size={20} />}
               {activeTab === 'tts' && <IconVolume size={20} />}
               <span className="font-medium flex items-center gap-2">
-                {activeTab === 'search' ? 'Search' : activeTab === 'image' ? 'Image Generator' : (
-                  <span className="flex items-center gap-2">
-                    <IconMessage size={20} />
-                    Image Generator
-                  </span>
-                )}
+                {activeTab === 'search' ? 'Search' :
+                  activeTab === 'image' ? 'Image Generator' :
+                    activeTab === 'chat' ? 'Chat' : (
+                      <span className="flex items-center gap-2">
+                        <IconVolume size={20} />
+                        Text to Speech
+                      </span>
+                    )}
               </span>
             </button>
 
