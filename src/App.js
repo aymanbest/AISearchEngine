@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import AISearch from './components/AISearch';
-import { IconSun, IconMoon, IconSearch, IconPhoto, IconVolume } from '@tabler/icons-react';
+import { IconSun, IconMoon, IconMessage, IconSearch, IconPhoto, IconVolume } from '@tabler/icons-react';
 import ImageGenerator from './components/ImageGenerator';
 import TextToSpeech from './components/TextToSpeech';
 import NavigationMenu from './components/NavigationMenu';
 import ResultCard from './components/ResultCard';
+import Chat from './components/Chat';
 import './App.css';
 
 function App() {
@@ -208,8 +209,13 @@ function App() {
               {activeTab === 'search' && <IconSearch size={20} />}
               {activeTab === 'image' && <IconPhoto size={20} />}
               {activeTab === 'tts' && <IconVolume size={20} />}
-              <span className="font-medium">
-                {activeTab === 'search' ? 'Search' : activeTab === 'image' ? 'Image Generator' : 'Text to Speech'}
+              <span className="font-medium flex items-center gap-2">
+                {activeTab === 'search' ? 'Search' : activeTab === 'image' ? 'Image Generator' : (
+                  <span className="flex items-center gap-2">
+                    <IconMessage size={20} />
+                    Image Generator
+                  </span>
+                )}
               </span>
             </button>
 
@@ -273,6 +279,8 @@ function App() {
                 </div>
               )}
             </div>
+          ) : activeTab === 'chat' ? (
+            <Chat />
           ) : activeTab === 'image' ? (
             <ImageGenerator />
           ) : (

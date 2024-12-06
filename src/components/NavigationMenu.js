@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconSearch, IconPhoto, IconVolume, IconChevronRight } from '@tabler/icons-react';
+import { IconSearch, IconMessage, IconPhoto, IconVolume, IconChevronRight } from '@tabler/icons-react';
 
 function NavigationMenu({ activeTab, setActiveTab, setShowMenu }) {
   const menuItems = [
@@ -15,6 +15,13 @@ function NavigationMenu({ activeTab, setActiveTab, setShowMenu }) {
       icon: IconPhoto,
       label: 'Image Generator',
       description: 'Create AI-generated images',
+      disabled: false
+    },
+    {
+      id: 'chat',
+      icon: IconMessage,
+      label: 'Chat',
+      description: 'Chat with AI models',
       disabled: false
     },
     {
