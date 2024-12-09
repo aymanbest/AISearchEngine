@@ -4,7 +4,7 @@ A modern search engine application built with React that combines web search res
 
 ## Features
 
-- 🔍 Web search with DuckDuckGo integration
+- 🔍 Web / image search  with DuckDuckGo integration
 - 🤖 AI-powered answers using multiple language models:
   - GPT-4
   - GPT-4 Mini
@@ -26,6 +26,10 @@ A modern search engine application built with React that combines web search res
 - 💡 Search suggestions with autocomplete
 - 📱 Responsive design
 
+## Special Thanks
+
+Special thanks to [rdwxth](https://github.com/rdwxth) for providing the Eduide API infrastructure that powers the AI capabilities in this project.
+
 ## Getting Started
 
 ### Prerequisites
@@ -46,11 +50,7 @@ cd searchengine
 npm install
 ```
 
-3. Create a 
-
-.env
-
- file in the root directory and add your environment variables:
+3. Create a .env file in the root directory and add your environment variables:
 ```
 REACT_APP_CORS_PROXY_URL=your_cors_proxy_url
 REACT_APP_DUCKDUCKGO_ENDPOINT=your_duckduckgo_endpoint
@@ -103,5 +103,4 @@ src/
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-```
 
