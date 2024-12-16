@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ImageGallery } from '@/components/image-gallery'
-import { ArrowRight, Globe, ChevronLeft, ChevronRight, Loader2, ChevronDown, Eye, EyeOff, Check, X, MessageCircle, Timer } from 'lucide-react'
+import { ArrowRight, Globe, ChevronLeft, ChevronRight, Loader2, ChevronDown, Eye, EyeOff, Check, X, MessageCircle} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -172,6 +172,7 @@ export default function Search() {
     let progressInterval: NodeJS.Timeout | undefined;
     
     if (isFetching || isLoading) {
+      setLoadingComplete(false) // Reset when loading starts
       setShowProgress(true)
       setProgress(0)
       
@@ -184,17 +185,17 @@ export default function Search() {
         })
       }, 100)
     } else if (showProgress) {
-      // When fetching is done, complete the progress smoothly
       if (progressInterval) {
         clearInterval(progressInterval)
       }
       setProgress(100)
       
-      // Hide progress and show results after animation
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setShowProgress(false)
         setLoadingComplete(true)
       }, 500)
+
+      return () => clearTimeout(timer)
     }
 
     return () => {
@@ -211,6 +212,7 @@ export default function Search() {
     setSearchInitiated(true)
     setShowSearchInput(false)
     setHideResults(false)
+    setLoadingComplete(false)
     refetch()
     refetchAi()
   }
@@ -222,6 +224,7 @@ export default function Search() {
     setSearchInitiated(true)
     setShowSearchInput(false)
     setHideResults(false)
+    setLoadingComplete(false)
     refetch()
     refetchAi()
   }
@@ -251,7 +254,7 @@ export default function Search() {
   const paginatedResults = sourceResults.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
 
   const renderLoadingState = () => {
-    let statusText = progress === 100 ? "Ready" : "Loading..."
+    const statusText = progress === 100 ? "Ready" : "Loading..."
 
     return (
       <Card className="p-4">
