@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ImageGallery } from '@/components/image-gallery'
-import { ArrowRight, Globe, ChevronLeft, ChevronRight, Loader2, ChevronDown, Eye, EyeOff, Check, X } from 'lucide-react'
+import { ArrowRight, Globe, ChevronLeft, ChevronRight, Loader2, ChevronDown, Eye, EyeOff, Check, X, MessageCircle, Timer } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card"
 import { PrivacyPolicy } from "@/components/privacypolicy"
 import { Terms } from '@/components/terms'
+import { Progress } from "@/components/ui/progress"
 
 const ITEMS_PER_PAGE = 8
 
@@ -25,6 +26,16 @@ type SearchResult = {
   icon?: string;
   wiki?: boolean;
   image?: string;
+}
+
+type Discussion = {
+  title: string;
+  forumName: string;
+  link: string;
+  date: string;
+  commentCount: string;
+  favicon: string;
+  content: string;
 }
 
 type SearchResponse = {
@@ -38,7 +49,8 @@ type SearchResponse = {
     image_source: string;
     image_alt_text: string;
     title: string;
-  }>
+  }>;
+  discussions: Array<Discussion>;
 }
 
 type Suggestion = {
@@ -68,13 +80,17 @@ export default function Search() {
   const [expandWiki, setExpandWiki] = useState(false)
   const [hideResults, setHideResults] = useState(false)
   const [expandedSections, setExpandedSections] = useState({
-    ai: true,
+    ai: false,
     images: true,
     wiki: true,
     sources: true,
+    discussions: true
   })
   const [showSearchInput, setShowSearchInput] = useState(true)
   const suggestionsRef = useRef<HTMLDivElement>(null)
+  const [loadingComplete, setLoadingComplete] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [showProgress, setShowProgress] = useState(false)
 
   const { data, isLoading, isFetching, refetch } = useQuery<SearchResponse>({
     queryKey: ['search', query],
@@ -152,6 +168,42 @@ export default function Search() {
     return () => clearTimeout(debounceTimer)
   }, [query])
 
+  useEffect(() => {
+    let progressInterval: NodeJS.Timeout | undefined;
+    
+    if (isFetching || isLoading) {
+      setShowProgress(true)
+      setProgress(0)
+      
+      progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev < 90) {
+            return prev + 5
+          }
+          return prev
+        })
+      }, 100)
+    } else if (showProgress) {
+      // When fetching is done, complete the progress smoothly
+      if (progressInterval) {
+        clearInterval(progressInterval)
+      }
+      setProgress(100)
+      
+      // Hide progress and show results after animation
+      setTimeout(() => {
+        setShowProgress(false)
+        setLoadingComplete(true)
+      }, 500)
+    }
+
+    return () => {
+      if (progressInterval) {
+        clearInterval(progressInterval)
+      }
+    }
+  }, [isFetching, isLoading])
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     setShowSuggestions(false)
@@ -197,6 +249,32 @@ export default function Search() {
   const sourceResults = data?.results.filter((result: SearchResult) => !result.wiki) || []
   const totalPages = Math.ceil(sourceResults.length / ITEMS_PER_PAGE)
   const paginatedResults = sourceResults.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+
+  const renderLoadingState = () => {
+    let statusText = progress === 100 ? "Ready" : "Loading..."
+
+    return (
+      <Card className="p-4">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {progress < 100 ? (
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              ) : (
+                <Check className="h-4 w-4 text-primary" />
+              )}
+              <p className="text-sm font-medium">{statusText}</p>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {Math.round(progress)}%
+            </span>
+          </div>
+
+          <Progress value={progress} className="h-2" />
+        </div>
+      </Card>
+    )
+  }
 
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
@@ -290,7 +368,7 @@ export default function Search() {
 
       {/* Navigation Buttons */}
       <div className="flex justify-between items-center">
-        {!showSearchInput && ( // Show "Back to Search" when search input is hidden
+        {!showSearchInput && (
           <Button
             variant="ghost"
             size="sm"
@@ -300,7 +378,7 @@ export default function Search() {
             Back to Search
           </Button>
         )}
-        {showSearchInput && searchInitiated && ( // Show "Show Results" when search input is visible and search was initiated
+        {showSearchInput && searchInitiated && ( 
           <Button
             variant="ghost"
             size="sm"
@@ -312,8 +390,22 @@ export default function Search() {
         )}
       </div>
 
+      {/* Loading State - Keep only this one */}
+      <AnimatePresence>
+        {showProgress && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mt-4"
+          >
+            {renderLoadingState()}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Results */}
-      {!hideResults && searchInitiated && ( // Only show results when not hidden and search was initiated
+      {!hideResults && searchInitiated && loadingComplete && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -549,10 +641,108 @@ export default function Search() {
             </motion.div>
           )}
 
+          {/* Discussions Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                  {isFetching ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : isLoading ? (
+                    <X className="h-3 w-3 text-destructive" />
+                  ) : data?.discussions && data.discussions.length > 0 ? (
+                    <Check className="h-3 w-3 text-primary" />
+                  ) : (
+                    <X className="h-3 w-3 text-destructive" />
+                  )}
+                </div>
+                <h2 className="text-sm font-medium">Discussions</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleSection('discussions')}
+              >
+                {expandedSections.discussions ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
+            <AnimatePresence>
+              {expandedSections.discussions && data?.discussions && data.discussions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {isFetching ? (
+                    <div className="flex items-center justify-center p-6">
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                    </div>
+                  ) : isLoading ? (
+                    <div className="flex items-center justify-center p-6 text-destructive">
+                      <X className="h-6 w-6 mr-2" />
+                      <p>Failed to load discussions</p>
+                    </div>
+                  ) : data?.discussions && data.discussions.length > 0 ? (
+                    <div className="space-y-4">
+                      {data.discussions.map((discussion, i) => (
+                        <Card key={i} className="p-4 hover:bg-accent/5">
+                          <div className="flex gap-3">
+                            {discussion.favicon && (
+                              <img 
+                                src={discussion.favicon} 
+                                alt={discussion.forumName}
+                                className="w-4 h-4 mt-1"
+                              />
+                            )}
+                            <div className="space-y-2 flex-1">
+                              <div className="flex justify-between">
+                                <div className="space-y-1">
+                                  <a 
+                                    href={discussion.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer" 
+                                    className="font-medium hover:underline block"
+                                  >
+                                    {discussion.title}
+                                  </a>
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <span>{discussion.forumName}</span>
+                                    <span>•</span>
+                                    <span>{discussion.date}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 text-muted-foreground">
+                                  <MessageCircle className="h-4 w-4" />
+                                  <span>{discussion.commentCount}</span>
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{discussion.content}</p>
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center p-6 text-muted-foreground">
+                      No discussions found
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Sources Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
             className="space-y-4"
           >
             <div className="flex items-center justify-between">
@@ -666,7 +856,7 @@ export default function Search() {
               )}
             </AnimatePresence>
           </motion.div>
-        </motion.div>
+        </motion.div>      
       )}
     </div>
   )
