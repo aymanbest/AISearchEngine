@@ -2,6 +2,9 @@
 
 A modern search engine application built with React that combines web search results with AI-powered answers and image generation capabilities.
 
+👉 **Check out the new Smart Seek theme [here](https://smartseekv2.vercel.app/).** *(Note: This version only includes the search feature.)*  
+👉 **The new theme is available on the [`new-design-nextjs` branch](https://github.com/aymanbest/Smart-Seek/tree/new-design-nextjs).**  
+
 ## Features
 
 - 🔍 Web / image search  with DuckDuckGo integration
