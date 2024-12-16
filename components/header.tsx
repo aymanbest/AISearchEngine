@@ -27,7 +27,7 @@ export default function Header() {
                 <span className="sr-only">Open settings</span>
               </Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent className="rounded-l-[15px] sm:rounded-l-[15px]">
               <ThemeCustomizer />
             </SheetContent>
           </Sheet>

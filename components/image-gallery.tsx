@@ -13,7 +13,6 @@ interface ImageGalleryProps {
     title: string
   }>
 }
-
 export function ImageGallery({ images }: ImageGalleryProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -23,11 +22,11 @@ export function ImageGallery({ images }: ImageGalleryProps) {
   return (
     <>
       <ScrollArea className="w-full">
-        <div className="flex gap-4 pb-4">
+        <div className="flex flex-col sm:flex-row gap-4 pb-4">
           {displayImages.slice(0, 3).map((image, index) => (
             <div
               key={index}
-              className="flex-none group relative w-64 aspect-[4/3] overflow-hidden rounded-lg bg-background ring-2 ring-background hover:ring-primary/50 transition-all"
+              className="flex-none group relative w-full sm:w-64 aspect-[4/3] overflow-hidden rounded-lg bg-background ring-2 ring-background hover:ring-primary/50 transition-all"
             >
               <img
                 src={image.image_source}
@@ -39,7 +38,7 @@ export function ImageGallery({ images }: ImageGalleryProps) {
           ))}
           {displayImages.length > 3 && (
             <div
-              className="flex-none group relative w-64 aspect-[4/3] overflow-hidden rounded-lg bg-background/50 hover:bg-background/80 transition-colors"
+              className="flex-none group relative w-full sm:w-64 aspect-[4/3] overflow-hidden rounded-lg bg-background/50 hover:bg-background/80 transition-colors"
             >
               <img
                 src={displayImages[3].image_source}
@@ -51,7 +50,7 @@ export function ImageGallery({ images }: ImageGalleryProps) {
                 className="absolute inset-0 flex items-center justify-center bg-black/50 group-hover:bg-black/60 transition-colors"
               >
                 {hasMore && (
-                  <Plus className="h-8 w-8 text-white group-hover:text-white/90 transition-colors" />
+                  <Plus className="h-6 w-6 sm:h-8 sm:w-8 text-white group-hover:text-white/90 transition-colors" />
                 )}
               </button>
             </div>
@@ -60,9 +59,9 @@ export function ImageGallery({ images }: ImageGalleryProps) {
       </ScrollArea>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-6xl h-[80vh]">
+        <DialogContent className="max-w-[95vw] sm:max-w-6xl h-[80vh] p-0">
           <ScrollArea className="h-full">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 p-2 sm:p-4">
               {images.map((image, index) => (
                 <div
                   key={index}

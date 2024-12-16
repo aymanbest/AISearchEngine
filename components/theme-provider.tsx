@@ -15,7 +15,7 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     // Load saved preferences from localStorage
     const savedTheme = localStorage.getItem('selectedTheme') || 'zink'
     const savedRadius = localStorage.getItem('radius') || '0.5rem'
-    const savedMode = localStorage.getItem('theme') || 'light'
+    const savedMode = localStorage.getItem('theme') || 'dark'
 
     // Apply saved preferences
     document.documentElement.setAttribute('data-theme', savedTheme)

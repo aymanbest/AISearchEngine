@@ -4,13 +4,17 @@ import { useState, useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { ImageGallery } from '@/components/image-gallery'
 import { ArrowRight, Globe, ChevronLeft, ChevronRight, Loader2, ChevronDown, Eye, EyeOff, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  Card
+} from "@/components/ui/card"
+import { PrivacyPolicy } from "@/components/privacypolicy"
+import { Terms } from '@/components/terms'
 
 const ITEMS_PER_PAGE = 8
 
@@ -20,7 +24,7 @@ type SearchResult = {
   description: string;
   icon?: string;
   wiki?: boolean;
-  image?: string; // Add this line
+  image?: string;
 }
 
 type SearchResponse = {
@@ -272,6 +276,14 @@ export default function Search() {
                 </div>
               )}
             </form>
+            
+            {/* Legal Links */}
+            <div className="flex justify-center items-center gap-4 mt-4 text-sm text-muted-foreground">
+              <PrivacyPolicy />
+              <span>•</span>
+
+              <Terms />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
