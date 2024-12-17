@@ -92,6 +92,23 @@ export default function Search() {
   const [progress, setProgress] = useState(0)
   const [showProgress, setShowProgress] = useState(false)
 
+
+  interface ApiResponse {
+    ok: boolean;
+    json(): Promise<ChatResponse>;
+    status: number;
+  }
+  
+  interface ChatResponse {
+    choices: Array<{
+      message: {
+        content: string;
+      };
+    }>;
+  }
+
+  
+
   const { data, isLoading, isFetching, refetch } = useQuery<SearchResponse>({
     queryKey: ['search', query],
     queryFn: async () => {
@@ -110,43 +127,71 @@ export default function Search() {
     queryFn: async () => {
       if (!query) return null
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 seconds timeout
+      const timeoutId = setTimeout(() => controller.abort(), 15000)
+
       try {
-        const response = await fetch('https://api.eduide.cc/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: selectedModel,
-            messages: [
-              {
-                role: "system",
-                content: "You are a search engine and should give answers to questions no talking to users or conversing."
-              },
-              {
-                role: "user",
-                content: query
-              }
-            ]
-          }),
-          signal: controller.signal
-        })
-        clearTimeout(timeoutId)
-        if (!response.ok) {
-          throw new Error('AI API request failed')
+        const [eduidePromise, airforcePromise] = [
+          fetch('https://api.eduide.cc/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: selectedModel,
+              messages: [
+                { role: "system", content: "You are a search engine and should give answers to questions no talking to users or conversing." },
+                { role: "user", content: query }
+              ]
+            }),
+            signal: controller.signal
+          }) as Promise<ApiResponse>,
+          fetch('https://api.airforce/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: selectedModel,
+              messages: [
+                { role: "system", content: "You are a search engine and should give answers to questions no talking to users or conversing." },
+                { role: "user", content: query }
+              ]
+            }),
+            signal: controller.signal
+          }) as Promise<ApiResponse>
+        ]
+
+        // Try eduide first
+        try {
+          const eduideResponse = await Promise.race([
+            eduidePromise,
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 7000))
+          ]) as ApiResponse;
+          
+          if (eduideResponse.ok) {
+            const data = await eduideResponse.json()
+            controller.abort()
+            clearTimeout(timeoutId)
+            return data
+          }
+        } catch (eduideError) {
+          // console.log('Eduide failed:', eduideError)
         }
-        return response.json()
+
+        // If eduide fails, try airforce
+        const airforceResponse: ApiResponse = await airforcePromise;
+        if (airforceResponse.ok) {
+          const data = await airforceResponse.json()
+          clearTimeout(timeoutId)
+          return data
+        }
+
+        throw new Error('Both APIs failed to respond')
+
       } catch (error) {
-        if ((error as Error).name === 'AbortError') {
-          throw new Error('Request timed out')
-        }
-        throw error
+        clearTimeout(timeoutId)
+        throw error // This will set isAiError to true
       }
     },
     enabled: false,
-    retry: false,
-  })
+    retry: 1
+})
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -252,6 +297,13 @@ export default function Search() {
   const sourceResults = data?.results.filter((result: SearchResult) => !result.wiki) || []
   const totalPages = Math.ceil(sourceResults.length / ITEMS_PER_PAGE)
   const paginatedResults = sourceResults.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE)
+
+
+  useEffect(() => {
+    if (aiResponse) {
+      setExpandedSections(prev => ({ ...prev, ai: true }));
+    }
+  }, [aiResponse]);
 
   const renderLoadingState = () => {
     const statusText = progress === 100 ? "Ready" : "Loading..."
@@ -643,8 +695,9 @@ export default function Search() {
               </AnimatePresence>
             </motion.div>
           )}
-
           {/* Discussions Section */}
+        {(data?.discussions || []).length > 0 && (
+          
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -740,6 +793,7 @@ export default function Search() {
               )}
             </AnimatePresence>
           </motion.div>
+          )}
 
           {/* Sources Section */}
           <motion.div
